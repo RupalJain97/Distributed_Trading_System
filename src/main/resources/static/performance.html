@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Metrics</title>
+</head>
+<body>
+<h1>Performance Metrics</h1>
+<p>Total Transactions Processed: <span id="transactionCount"></span></p>
+<p>Execution Time: <span id="executionTime"></span> milliseconds</p>
+
+<script>
+    fetch('/reading_performance')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            document.getElementById('transactionCount').textContent = data["transactionCount"];
+            document.getElementById('executionTime').textContent = data["executionTime"];
+        });
+</script>
+</body>
+</html>
