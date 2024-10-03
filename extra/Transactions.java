@@ -1,4 +1,4 @@
-package com.threading;
+package com.trading;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

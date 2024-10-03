@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stock Dashboard</title>
+  </head>
+  <body>
+    <h1>
+      Stocks Available
+    </h1>
+
+    <p th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Stock Symbol</th>
+          <th>Company Name</th>
+          <th>Price</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="stock : ${stocks}">
+          <td th:text="${stock.symbol}">Stock Symbol</td>
+          <td th:text="${stock.companyName}">Company Name</td>
+          <td th:text="${stock.price}">Price</td>
+          <td th:text="${stock.quantity}">Available Quantity</td>
+          <td>
+            <button th:onclick="buyStock([[${stock.symbol}]], [[${stock.price}]])">
+            Buy
+          </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Button to go back to user dashboard -->
+    <a href="/user">Back to Dashboard </a>
+
+    <!-- JavaScript to handle stock buying -->
+    <script>
+      function buyStock(stockSymbol, availableQuantity, price) {
+        const quantity = prompt("Enter quantity to buy:", availableQuantity);
+        if (quantity && quantity <= availableQuantity) {
+          // Make a request to buy the stock
+          fetch("/stocks/buy", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `stockSymbol=${stockSymbol}&quantity=${quantity}`,
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              alert(data);
+              location.reload(); // Refresh the page after buying
+            });
+        }
+      }
+    </script>
+  </body>
+</html>

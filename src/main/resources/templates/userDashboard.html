@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!-- <html> -->
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard</title>
+  </head>
+  <body>
+
+    <h1>Welcome, <span th:text="${user.username}">User</span></h1>
+    <p>Your User ID is: <span th:text="${user.userid ?: 'Unknown name'}">UserID</span></p>
+
+    <!-- Stock details and other actions like Buy/Sell will go here -->
+    <p>View and manage your stocks.</p>
+
+    <!-- Buttons for different actions -->
+    <a href="/stocks">View Stocks</a> | 
+    <a href="/orders">View Orders</a> | 
+    <a href="/history">View Order History</a>
+
+  </body>
+</html>

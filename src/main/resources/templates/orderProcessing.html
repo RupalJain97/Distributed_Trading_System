@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Order Dashboard</title>
+  </head>
+  <body>
+    <h1>Orders for User: <span th:text="${user.username}"></span></h1>
+
+    <!-- Table for displaying user orders -->
+    <table>
+      <tr>
+        <th>Stock Symbol</th>
+        <th>Company Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+      <tr th:each="order : ${orders}">
+        <td th:text="${order.stockSymbol}"></td>
+        <td th:text="${order.companyName}"></td>
+        <td th:text="${order.quantity}"></td>
+        <td th:text="${order.price}"></td>
+        <td th:text="${order.orderDate}"></td>
+        <td>
+          <button th:onclick="'sellStock('+ ${order.stockSymbol}+ ', '+ ${order.quantity} + ')'">
+            Sell
+          </button>
+        </td>
+      </tr>
+    </table>
+    
+    <a href="/user">Back to Dashboard</a>
+
+    <!-- <h1>Place Your Orders</h1>
+
+    <div>
+      <h2>Buy Stocks</h2>
+      <form id="buyForm">
+        <label for="buySymbol">Stock Symbol:</label>
+        <input type="text" id="buySymbol" name="buySymbol" required />
+        <label for="buyQuantity">Quantity:</label>
+        <input type="number" id="buyQuantity" name="buyQuantity" required />
+        <button type="submit">Buy</button>
+      </form>
+    </div>
+
+    <div>
+      <h2>Sell Stocks</h2>
+      <form id="sellForm">
+        <label for="sellSymbol">Stock Symbol:</label>
+        <input type="text" id="sellSymbol" name="sellSymbol" required />
+        <label for="sellQuantity">Quantity:</label>
+        <input type="number" id="sellQuantity" name="sellQuantity" required />
+        <button type="submit">Sell</button>
+      </form>
+    </div>
+
+    <div>
+      <h2>Your Order Status</h2>
+      <p>Total Orders Placed: <span id="orderCount"></span></p>
+    </div> -->
+
+    <script>
+      function sellStock(stockSymbol, availableQuantity) {
+        const quantity = prompt("Enter quantity to sell:", availableQuantity);
+        if (quantity && quantity <= availableQuantity) {
+          // Make a request to sell the stock
+          fetch("/orders/sell", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ stockSymbol, quantity }),
+          })
+            .then((response) => response.text())
+            .then((data) => {
+              alert(data);
+              location.reload(); // Refresh the page after selling
+            });
+        }
+      }
+
+      // Buy form submission
+      document
+        .getElementById("buyForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const symbol = document.getElementById("buySymbol").value;
+          const quantity = document.getElementById("buyQuantity").value;
+          fetch("/orders/buy", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ stockSymbol: symbol, quantity: quantity }),
+          })
+            .then((response) => response.text())
+            .then((data) => alert(data));
+        });
+
+      // Sell form submission
+      document
+        .getElementById("sellForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const symbol = document.getElementById("sellSymbol").value;
+          const quantity = document.getElementById("sellQuantity").value;
+          fetch("/orders/sell", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ stockSymbol: symbol, quantity: quantity }),
+          })
+            .then((response) => response.text())
+            .then((data) => alert(data));
+        });
+
+      // Fetch order count
+      function fetchOrderStatus() {
+        fetch("/orders/1") // Assuming userId = 1
+          .then((response) => response.text())
+          .then(
+            (data) => (document.getElementById("orderCount").textContent = data)
+          );
+      }
+
+      // Call the order status function periodically to update
+      setInterval(fetchOrderStatus, 5000); // Update every 5 seconds
+    </script>
+  </body>
+</html>

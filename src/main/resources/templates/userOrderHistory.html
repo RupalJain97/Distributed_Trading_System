@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order History</title>
+</head>
+<body>
+    <h1>Order History for <span th:text="${user.username}"></span></h1>
+
+    <!-- Table to display order history -->
+    <table>
+        <tr>
+            <th>Stock Symbol</th>
+            <th>Company Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Date of Purchase</th>
+        </tr>
+        <tr th:each="order : ${orderHistory}">
+            <td th:text="${order.stockSymbol}"></td>
+            <td th:text="${order.companyName}"></td>
+            <td th:text="${order.quantity}"></td>
+            <td th:text="${order.price}"></td>
+            <td th:text="${order.orderDate}"></td>
+        </tr>
+    </table>
+
+    <!-- Button to go back to user dashboard -->
+    <a href="/user">Back to Dashboard</a>
+</body>
+</html>

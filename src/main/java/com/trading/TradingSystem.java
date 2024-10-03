@@ -1,13 +1,13 @@
-package com.threading;
+package com.trading;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ScalingMultithreadingApplication {
+public class TradingSystem {
 
     public static void main(String[] args) {
-        SpringApplication.run(ScalingMultithreadingApplication.class, args);
+        SpringApplication.run(TradingSystem.class, args);
     }
 
 }
