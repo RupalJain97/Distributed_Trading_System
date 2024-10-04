@@ -17,7 +17,7 @@
     <!-- Buttons for different actions -->
     <a href="/stocks">View Stocks</a> | 
     <a href="/orders">View Orders</a> | 
-    <a href="/history">View Order History</a>
+    <a th:href="@{|/${user.userid}/history|}">View Order History</a>
 
   </body>
 </html>

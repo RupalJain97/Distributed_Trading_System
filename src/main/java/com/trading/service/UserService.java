@@ -9,6 +9,8 @@ import java.util.Map;
 public class UserService {
     // Simple user store (replace with DB later)
     private Map<String, UserModel> users = new HashMap<>();
+    // UserModel firstUser = new UserModel("Rupli", "rupaljain", "12345");
+    // users.put("rupaljain", firstUser);
 
     public UserModel validateUser(String userid, String password) {
         UserModel user = users.get(userid);

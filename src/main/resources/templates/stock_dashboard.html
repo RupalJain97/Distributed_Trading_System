@@ -5,9 +5,7 @@
     <title>Stock Dashboard</title>
   </head>
   <body>
-    <h1>
-      Stocks Available
-    </h1>
+    <h1>Stocks Available</h1>
 
     <p th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
 
@@ -16,46 +14,107 @@
         <tr>
           <th>Stock Symbol</th>
           <th>Company Name</th>
-          <th>Price</th>
+          <th>Stock Price</th>
           <th>Quantity</th>
         </tr>
       </thead>
       <tbody>
         <tr th:each="stock : ${stocks}">
-          <td th:text="${stock.symbol}">Stock Symbol</td>
-          <td th:text="${stock.companyName}">Company Name</td>
-          <td th:text="${stock.price}">Price</td>
-          <td th:text="${stock.quantity}">Available Quantity</td>
+          <td id="symbol" th:text="${stock.symbol}">Stock Symbol</td>
+          <td id="companyName" th:text="${stock.companyName}">Company Name</td>
+          <td id="stockPrice" th:text="${stock.price}">Price</td>
+          <td id="stockQuantity" th:text="${stock.quantity}">
+            Available Quantity
+          </td>
           <td>
-            <button th:onclick="buyStock([[${stock.symbol}]], [[${stock.price}]])">
-            Buy
-          </button>
+            <button
+              th:onclick="buyStock([[${stock.symbol}]], [[${stock.quantity}]], [[${stock.price}]])"
+            >
+              Buy
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
-
+    <br />
+    <br />
     <!-- Button to go back to user dashboard -->
     <a href="/user">Back to Dashboard </a>
 
-    <!-- JavaScript to handle stock buying -->
     <script>
-      function buyStock(stockSymbol, availableQuantity, price) {
-        const quantity = prompt("Enter quantity to buy:", availableQuantity);
-        if (quantity && quantity <= availableQuantity) {
-          // Make a request to buy the stock
+      function buyStock(symbol, availableQuantity, price) {
+        // Get the row containing the button that was clicked
+        const row = event.target.closest("tr");
+
+        // Add new columns for Quantity and Final Price (if not already present)
+        if (!row.querySelector(".buy-quantity")) {
+          // Add Quantity input field
+          const quantityCell = document.createElement("td");
+          quantityCell.innerHTML =
+            '<input type="number" class="buy-quantity" placeholder="Quantity" min="1" max="' +
+            availableQuantity +
+            '">';
+          row.appendChild(quantityCell);
+
+          // Add Final Price display field
+          const finalPriceCell = document.createElement("td");
+          finalPriceCell.classList.add("final-price");
+          finalPriceCell.textContent = "0"; // Initial value for final price
+          row.appendChild(finalPriceCell);
+
+          // Add Submit button
+          const submitButtonCell = document.createElement("td");
+          submitButtonCell.innerHTML =
+            "<button onclick=\"submitBuyOrder('" +
+            symbol +
+            "', " +
+            price +
+            ')">Submit</button>';
+          row.appendChild(submitButtonCell);
+
+          // Add event listener to the quantity input field to calculate final price dynamically
+          const quantityInput = row.querySelector(".buy-quantity");
+          quantityInput.addEventListener("input", function () {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const finalPrice = quantity * price;
+            finalPriceCell.textContent = finalPrice.toFixed(2); // Update the final price field
+          });
+        }
+      }
+
+      function submitBuyOrder(symbol, price) {
+        const row = event.target.closest("tr");
+        const user_stock_quantity = row.querySelector(".buy-quantity").value;
+        const finalPrice = row.querySelector(".final-price").textContent;
+
+        if (user_stock_quantity > 0) {
+          // Prepare order object to send to backend
+          const order = {
+            stockSymbol: symbol,
+            quantity: user_stock_quantity,
+            stockPrice: price,
+            orderPrice: finalPrice,
+            action: "Buy",
+          };
+          console.log(order);
+
+          // Send order to the backend
           fetch("/stocks/buy", {
             method: "POST",
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Type": "application/json",
             },
-            body: `stockSymbol=${stockSymbol}&quantity=${quantity}`,
+            body: JSON.stringify(order),
           })
             .then((response) => response.text())
             .then((data) => {
-              alert(data);
-              location.reload(); // Refresh the page after buying
+              alert(data); // Display response from the backend
+            })
+            .catch((error) => {
+              console.error("Error:", error);
             });
+        } else {
+          alert("Please enter a valid quantity");
         }
       }
     </script>

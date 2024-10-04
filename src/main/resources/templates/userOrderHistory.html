@@ -12,15 +12,19 @@
         <tr>
             <th>Stock Symbol</th>
             <th>Company Name</th>
-            <th>Quantity</th>
-            <th>Price</th>
+            <th>Stock Price</th>
+            <th>Quantity Purchased/Sold</th>
+            <th>Order Price</th>
+            <th>Order Type</th>
             <th>Date of Purchase</th>
         </tr>
         <tr th:each="order : ${orderHistory}">
             <td th:text="${order.stockSymbol}"></td>
             <td th:text="${order.companyName}"></td>
+            <td th:text="${order.stockPrice}"></td>
             <td th:text="${order.quantity}"></td>
-            <td th:text="${order.price}"></td>
+            <td th:text="${order.orderPrice}"></td>
+            <td th:text="${order.action}"></td>
             <td th:text="${order.orderDate}"></td>
         </tr>
     </table>

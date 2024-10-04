@@ -26,9 +26,9 @@ public class StockController {
         // Get user from session
         UserModel user = (UserModel) session.getAttribute("user");
 
-        if (user == null) {
-            return "redirect:/login"; // Redirect to login if session expires
-        }
+        // if (user == null) {
+        //     return "redirect:/login"; // Redirect to login if session expires
+        // }
 
         model.addAttribute("user", user);
         
@@ -39,17 +39,4 @@ public class StockController {
         return "stock_dashboard"; 
     }
 
-
-    @PostMapping("/buy")
-    @ResponseBody
-    public String buyStock(@RequestParam String stockSymbol, @RequestParam int quantity, HttpSession session) {
-        UserModel user = (UserModel) session.getAttribute("user");
-        if (user == null) {
-            return "redirect:/login"; // Redirect to login if session expires
-        }
-
-        // Call service method to process stock purchase
-        stockService.buyStock(user.getUserid(), stockSymbol, quantity);
-        return "Bought " + quantity + " shares of " + stockSymbol;
-    }
 }

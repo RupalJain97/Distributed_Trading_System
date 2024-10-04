@@ -1,5 +1,8 @@
 package com.trading.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class StockModel {
     private String symbol;
     private String companyName;
@@ -30,6 +33,10 @@ public class StockModel {
         this.companyName = companyName;
     }
 
+    public void setCompanyNameBySymbol(String stockSymbol){
+        // return companyName;
+    }
+
     public double getPrice() {
         return price;
     }
@@ -42,7 +49,7 @@ public class StockModel {
         return quantity;
     }
 
-    public void setAvailableQuantity(int stock_left) {
+    public void setQuantity(int stock_left) {
         this.quantity = stock_left;
     }
 }

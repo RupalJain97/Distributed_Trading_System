@@ -3,6 +3,7 @@ package com.trading.controller;
 import com.trading.model.OrderModel;
 import com.trading.model.UserModel;
 import com.trading.service.OrderService;
+import com.trading.service.StockService;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 
@@ -32,7 +33,7 @@ public class OrderController {
         return "orderProcessing";
     }
 
-    @PostMapping("/orders/buy")
+    @PostMapping("/stocks/buy")
     @ResponseBody
     public String placeBuyOrder(@RequestBody OrderModel order, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
@@ -40,9 +41,9 @@ public class OrderController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
-        System.out.println("Buying Stocks...");
+        System.out.println("Placing Buy Stocks Order..." + order.toString());
         orderService.placeBuyOrder(order, user.getUserid());
-        return "Buy order placed for " + order.getStockSymbol();
+        return "Buy order placed for " + order.getStockSymbol() + " with quantity: " + order.getQuantity();
     }
 
     @PostMapping("/orders/sell")
@@ -63,7 +64,7 @@ public class OrderController {
         return "User " + userId + " has placed " + orderService.getOrderCount() + " orders.";
     }
 
-    @GetMapping("/history")
+    @GetMapping("/{userId}/history")
     public String showOrderHistory(Model model, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
         if (user == null) {

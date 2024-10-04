@@ -12,39 +12,29 @@
       <tr>
         <th>Stock Symbol</th>
         <th>Company Name</th>
+        <th>Stock Price</th>
         <th>Quantity</th>
-        <th>Price</th>
+        <th>Order Price</th>
         <th>Date</th>
-        <th>Actions</th>
+        <th>Order Type</th>
       </tr>
       <tr th:each="order : ${orders}">
         <td th:text="${order.stockSymbol}"></td>
         <td th:text="${order.companyName}"></td>
+        <td th:text="${order.stockPrice}"></td>
         <td th:text="${order.quantity}"></td>
-        <td th:text="${order.price}"></td>
+        <td th:text="${order.orderPrice}"></td>
         <td th:text="${order.orderDate}"></td>
+        <td th:text="${order.action}"></td>
         <td>
-          <button th:onclick="'sellStock('+ ${order.stockSymbol}+ ', '+ ${order.quantity} + ')'">
+          <!-- <button th:onclick="'sellStock('+ ${order.stockSymbol}+ ', '+ ${order.quantity} + ')'">
             Sell
-          </button>
+          </button> -->
         </td>
       </tr>
     </table>
     
     <a href="/user">Back to Dashboard</a>
-
-    <!-- <h1>Place Your Orders</h1>
-
-    <div>
-      <h2>Buy Stocks</h2>
-      <form id="buyForm">
-        <label for="buySymbol">Stock Symbol:</label>
-        <input type="text" id="buySymbol" name="buySymbol" required />
-        <label for="buyQuantity">Quantity:</label>
-        <input type="number" id="buyQuantity" name="buyQuantity" required />
-        <button type="submit">Buy</button>
-      </form>
-    </div>
 
     <div>
       <h2>Sell Stocks</h2>
@@ -60,7 +50,7 @@
     <div>
       <h2>Your Order Status</h2>
       <p>Total Orders Placed: <span id="orderCount"></span></p>
-    </div> -->
+    </div> 
 
     <script>
       function sellStock(stockSymbol, availableQuantity) {
@@ -81,24 +71,6 @@
             });
         }
       }
-
-      // Buy form submission
-      document
-        .getElementById("buyForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const symbol = document.getElementById("buySymbol").value;
-          const quantity = document.getElementById("buyQuantity").value;
-          fetch("/orders/buy", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ stockSymbol: symbol, quantity: quantity }),
-          })
-            .then((response) => response.text())
-            .then((data) => alert(data));
-        });
 
       // Sell form submission
       document
@@ -128,7 +100,7 @@
       }
 
       // Call the order status function periodically to update
-      setInterval(fetchOrderStatus, 5000); // Update every 5 seconds
+      setInterval(fetchOrderStatus, 1000); // Update every 1 seconds
     </script>
   </body>
 </html>
