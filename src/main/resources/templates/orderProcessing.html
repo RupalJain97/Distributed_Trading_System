@@ -27,16 +27,18 @@
         <td th:text="${order.orderDate}"></td>
         <td th:text="${order.action}"></td>
         <td>
-          <!-- <button th:onclick="'sellStock('+ ${order.stockSymbol}+ ', '+ ${order.quantity} + ')'">
+          <button
+            th:onclick="sellStock([[${order.stockSymbol}]], [[${order.quantity}]], [[${order.stockPrice}]])"
+          >
             Sell
-          </button> -->
+          </button>
         </td>
       </tr>
     </table>
-    
+
     <a href="/user">Back to Dashboard</a>
 
-    <div>
+    <!-- <div>
       <h2>Sell Stocks</h2>
       <form id="sellForm">
         <label for="sellSymbol">Stock Symbol:</label>
@@ -45,50 +47,81 @@
         <input type="number" id="sellQuantity" name="sellQuantity" required />
         <button type="submit">Sell</button>
       </form>
-    </div>
+    </div> -->
 
     <div>
       <h2>Your Order Status</h2>
       <p>Total Orders Placed: <span id="orderCount"></span></p>
-    </div> 
+    </div>
 
     <script>
-      function sellStock(stockSymbol, availableQuantity) {
-        const quantity = prompt("Enter quantity to sell:", availableQuantity);
-        if (quantity && quantity <= availableQuantity) {
-          // Make a request to sell the stock
-          fetch("/orders/sell", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ stockSymbol, quantity }),
-          })
-            .then((response) => response.text())
-            .then((data) => {
-              alert(data);
-              location.reload(); // Refresh the page after selling
-            });
+      function sellStock(symbol, userAvailableQuantity, price) {
+        const row = event.target.closest("tr");
+
+        if (!row.querySelector(".sell-quantity")) {
+          const quantityCell = document.createElement("td");
+          quantityCell.innerHTML =
+            '<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="' +
+            userAvailableQuantity +
+            '">';
+          row.appendChild(quantityCell);
+
+          const finalPriceCell = document.createElement("td");
+          finalPriceCell.classList.add("final-price");
+          finalPriceCell.textContent = "0"; // Initial value for final price
+          row.appendChild(finalPriceCell);
+
+          const submitButtonCell = document.createElement("td");
+          submitButtonCell.innerHTML =
+            "<button onclick=\"submitSellOrder('" +
+            symbol +
+            "', " +
+            price +
+            ')">Submit</button>';
+          row.appendChild(submitButtonCell);
+
+          const quantityInput = row.querySelector(".sell-quantity");
+          quantityInput.addEventListener("input", function () {
+            const quantity = parseInt(quantityInput.value) || 0;
+            const finalPrice = quantity * price;
+            finalPriceCell.textContent = finalPrice.toFixed(2);
+          });
         }
       }
 
-      // Sell form submission
-      document
-        .getElementById("sellForm")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-          const symbol = document.getElementById("sellSymbol").value;
-          const quantity = document.getElementById("sellQuantity").value;
+      function submitSellOrder(symbol, price) {
+        const row = event.target.closest("tr");
+        const sellQuantity = row.querySelector(".sell-quantity").value;
+        const finalPrice = row.querySelector(".final-price").textContent;
+
+        if (sellQuantity > 0) {
+          const order = {
+            stockSymbol: symbol,
+            quantity: sellQuantity,
+            stockPrice: price,
+            orderPrice: finalPrice,
+            action: "Sell",
+          };
+
           fetch("/orders/sell", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ stockSymbol: symbol, quantity: quantity }),
+            body: JSON.stringify(order),
           })
             .then((response) => response.text())
-            .then((data) => alert(data));
-        });
+            .then((data) => {
+              alert(data); // Display response from the backend
+              location.reload(); // Reload the page after sell
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        } else {
+          alert("Please enter a valid quantity");
+        }
+      }
 
       // Fetch order count
       function fetchOrderStatus() {
@@ -100,7 +133,7 @@
       }
 
       // Call the order status function periodically to update
-      setInterval(fetchOrderStatus, 1000); // Update every 1 seconds
+      setInterval(fetchOrderStatus, 100); // Update every 0.1 seconds
     </script>
   </body>
 </html>

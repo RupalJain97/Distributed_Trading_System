@@ -54,6 +54,7 @@ public class OrderController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
+        System.out.println("Selling Stocks..." + order.toString());
         orderService.placeSellOrder(order, user.getUserid());
         return "Sell order placed for " + order.getStockSymbol();
     }

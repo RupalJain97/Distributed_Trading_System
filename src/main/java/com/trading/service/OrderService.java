@@ -2,7 +2,6 @@ package com.trading.service;
 
 import com.trading.model.OrderModel;
 import com.trading.model.StockModel;
-import com.trading.service.StockService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class OrderService {
         StockModel company_stock = StockService.findStockBySymbol(order.getStockSymbol());
         order.setCompanyName(company_stock.getCompanyName());
         order.setOrderDate();
-        
+
         System.out.println(order.toString());
         userOrders.add(order); // Add the new order
         orderDatabase.put(userId, userOrders);
@@ -57,6 +56,10 @@ public class OrderService {
     }
 
     public void placeSellOrder(OrderModel order, String userId) {
+        StockModel company_stock = StockService.findStockBySymbol(order.getStockSymbol());
+        order.setCompanyName(company_stock.getCompanyName());
+        order.setOrderDate();
+        
         List<OrderModel> orders = orderDatabase.getOrDefault(userId, new ArrayList<>());
         OrderModel orderToSell = orders.stream()
                 .filter(o -> o.getStockSymbol().equals(order.getStockSymbol()))
@@ -67,10 +70,10 @@ public class OrderService {
             int remainingQuantity = orderToSell.getQuantity() - order.getQuantity();
             if (remainingQuantity <= 0) {
                 orders.remove(orderToSell); // Remove if fully sold
-            } else {
-                orderToSell.setQuantity(remainingQuantity);
-            }
-            addToOrderHistory(order, userId); // Store in history
+            } 
+            orderToSell.setQuantity(remainingQuantity);
+            addToOrderHistory(order, userId);
+            orderDatabase.put(userId, orders); 
         }
 
         // executorService.execute(() -> {
@@ -94,7 +97,7 @@ public class OrderService {
     // Retrieve order history
     public List<OrderModel> getUserOrderHistory(String userId) {
         List<OrderModel> history = userHistoryDatabase.getOrDefault(userId, new ArrayList<>());
-        for( OrderModel temp: history){
+        for (OrderModel temp : history) {
             System.out.println(temp.toString());
         }
         return userHistoryDatabase.getOrDefault(userId, new ArrayList<>());
