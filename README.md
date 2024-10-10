@@ -2,7 +2,9 @@
 
 Run the application:
 
-http://localhost:8081/performance.html
+http://localhost:8081/login
+
+mvn spring-boot:run
 
 
 
@@ -104,3 +106,8 @@ These are frontend files used to render the UI in the browser. The views are ser
 
 *Trading System Logic:*
 The TradingSystem class likely acts as a utility or central service to coordinate multiple services. It could handle tasks like validating an order, updating user balances, or managing stock data across multiple services.
+
+
+### Total lines of code:
+
+946
