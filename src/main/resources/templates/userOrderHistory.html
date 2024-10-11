@@ -1,38 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Order History</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
-</head>
-<body>
-    <h1>Order History for <span th:text="${user.username}"></span></h1>
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <span>Welcome,<span th:text="${user.username}">Username</span></span>
+      </div>
+      <div class="navbar-right">
+        <span>User ID: <span th:text="${user.userid}">UserID</span></span>
+        <a href="/user" class="dashboard-btn">Back to Dashboard</a>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </nav>
 
-    <!-- Table to display order history -->
-    <table>
+    <div class="container">
+      <h2>Order History</h2>
+
+      <!-- Table to display order history -->
+      <table>
         <tr>
-            <th>Stock Symbol</th>
-            <th>Company Name</th>
-            <th>Stock Price</th>
-            <th>Quantity Purchased/Sold</th>
-            <th>Order Price</th>
-            <th>Order Type</th>
-            <th>Date of Purchase</th>
+          <th>Stock Symbol</th>
+          <th>Company Name</th>
+          <th>Stock Price</th>
+          <th>Quantity</th>
+          <th>Order Price</th>
+          <th>Order Type</th>
+          <th>Date of Purchase</th>
         </tr>
         <tr th:each="order : ${orderHistory}">
-            <td th:text="${order.stockSymbol}"></td>
-            <td th:text="${order.companyName}"></td>
-            <td th:text="${order.stockPrice}"></td>
-            <td th:text="${order.quantity}"></td>
-            <td th:text="${order.orderPrice}"></td>
-            <td th:text="${order.action}"></td>
-            <td th:text="${order.orderDate}"></td>
+          <td th:text="${order.stockSymbol}"></td>
+          <td th:text="${order.companyName}"></td>
+          <td th:text="${order.stockPrice}"></td>
+          <td th:text="${order.quantity}"></td>
+          <td th:text="${order.orderPrice}"></td>
+          <td th:text="${order.action}"></td>
+          <td th:text="${order.orderDate}"></td>
         </tr>
-    </table>
+      </table>
+    </div>    
 
-    <!-- Button to go back to user dashboard -->
-    <a href="/user">Back to Dashboard</a>
-    <a href="/logout">Logout</a>
-</body>
+  </body>
 </html>

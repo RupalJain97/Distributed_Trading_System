@@ -62,7 +62,7 @@ public class OrderController {
     @GetMapping("/orders/{userId}")
     @ResponseBody
     public String getOrderStatus(@PathVariable String userId) {
-        return "User " + userId + " has placed " + orderService.getOrderCount() + " orders.";
+        return " "+ orderService.getOrderCount() + " ";
     }
 
     @GetMapping("/{userId}/history")

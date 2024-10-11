@@ -4,46 +4,55 @@
     <meta charset="UTF-8" />
     <title>Stock Dashboard</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
   </head>
   <body>
-    <h1>Stocks Available</h1>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <span>Welcome,<span th:text="${user.username}">Username</span></span>
+      </div>
+      <div class="navbar-right">
+        <span>User ID: <span th:text="${user.userid}">UserID</span></span>
+        <a href="/user" class="dashboard-btn">Dashboard </a>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </nav>
 
-    <p th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
+    <div class="container">
+      <h2>Current Stocks Availability</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Stock Symbol</th>
-          <th>Company Name</th>
-          <th>Stock Price</th>
-          <th>Quantity</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="stock : ${stocks}">
-          <td id="symbol" th:text="${stock.symbol}">Stock Symbol</td>
-          <td id="companyName" th:text="${stock.companyName}">Company Name</td>
-          <td id="stockPrice" th:text="${stock.price}">Price</td>
-          <td id="stockQuantity" th:text="${stock.quantity}">
-            Available Quantity
-          </td>
-          <td>
-            <button
-              th:onclick="buyStock([[${stock.symbol}]], [[${stock.quantity}]], [[${stock.price}]])"
-            >
-              Buy
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <br />
-    <br />
-    <!-- Button to go back to user dashboard -->
-    <a href="/user">Back to Dashboard </a>
+      <p class="stock-count" th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
 
-    <a href="/logout">Logout</a>
+      <table>
+        <thead>
+          <tr>
+            <th>Stock Symbol</th>
+            <th>Company Name</th>
+            <th>Stock Price</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="stock : ${stocks}">
+            <td id="symbol" th:text="${stock.symbol}">Stock Symbol</td>
+            <td id="companyName" th:text="${stock.companyName}">
+              Company Name
+            </td>
+            <td id="stockPrice" th:text="${stock.price}">Price</td>
+            <td id="stockQuantity" th:text="${stock.quantity}">
+              Available Quantity
+            </td>
+            <td>
+              <button
+                th:onclick="buyStock([[${stock.symbol}]], [[${stock.quantity}]], [[${stock.price}]])"
+              >
+                Buy
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <script>
       function buyStock(symbol, availableQuantity, price) {
@@ -113,6 +122,7 @@
             .then((response) => response.text())
             .then((data) => {
               alert(data); // Display response from the backend
+              location.reload(); // Reload the page after sell
             })
             .catch((error) => {
               console.error("Error:", error);

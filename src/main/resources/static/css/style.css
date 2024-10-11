@@ -4,8 +4,8 @@ body {
     background-color: #f4f4f9;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
+    /* display: flex; */
+    /* justify-content: center; */
     align-items: center;
     height: 100vh;
 }
@@ -82,29 +82,6 @@ button:hover {
 }
 
 
-/*  TABLE  */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-}
-
-th {
-    background-color: #007bff;
-    color: white;
-}
-
-td {
-    text-align: center;
-}
-
-
-
 
 /* ******************************
     LOGIN
@@ -117,17 +94,20 @@ td {
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
     width: 300px;
     text-align: center;
+    margin: auto;
+    margin-top: 100px;
 }
 
-.login-link{
+.login-link {
     font-size: 17px;
 }
 
-.login-link a{
+.login-link a {
     color: #1876dc;
     font-weight: bold;
 }
-.login-link a:hover{
+
+.login-link a:hover {
     color: #0056b3;
 }
 
@@ -142,4 +122,135 @@ td {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     width: 400px;
     text-align: center;
+    margin: auto;
+    margin-top: 100px;
 }
+
+
+
+/* ******************************
+    DASHBOARD, STOCK, ORDERS
+****************************** */
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #5cbae2b4;
+    color: rgb(85, 84, 84);
+    padding: 10px;
+    height: 50px;
+    align-items: center;
+    font-style: italic;
+    font-family: Merriweather, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+    line-height: normal;
+}
+
+.navbar-left span,
+.navbar-right span {
+    font-size: 18px;
+    margin-right: 10px;
+    font-weight: 500;
+    margin-left: 10px;
+}
+
+.logout-btn {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0056b3;
+    border: 2px solid #f8f8f8;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.dashboard-btn {
+    color: #fff;
+    text-decoration: none;
+    background-color: #0056b3;
+    border: 2px solid #f8f8f8;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+
+.container {
+    max-width: 1200px;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Links */
+.dashboard-links {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.dashboard-links a {
+    text-decoration: none;
+    margin: 0 10px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.dashboard-links a:hover {
+    text-decoration: underline;
+}
+
+.stock-count{
+    font-weight: bold;
+    font-size: 15px;
+    font-style: italic;
+}
+
+/*  TABLE  */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #8d8b8b;
+    padding: 10px;
+}
+
+th {
+    background-color: #7cc38b60;
+    color: #0056b3;
+    font-size: 16px;
+}
+
+td {
+    text-align: center;
+}
+
+td button {
+    background-color: #218838;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+td button:hover {
+    background-color: #2eb44b;
+}
+
+
+
+/*
+ User Dashboard Styles 
+.account-summary, .portfolio-summary, .recent-transactions, .market-news, .stock-performance-chart {
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+*/

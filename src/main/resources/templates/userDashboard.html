@@ -6,21 +6,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
   </head>
   <body>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <span>Welcome,<span th:text="${user.username}">Username</span></span>
+      </div>
+      <div class="navbar-right">
+        <span>User ID: <span th:text="${user.userid}">UserID</span></span>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </nav>
 
-    <h1>Welcome, <span th:text="${user.username}">User</span></h1>
-    <p>Your User ID is: <span th:text="${user.userid ?: 'Unknown name'}">UserID</span></p>
+    <div class="container">
+      <p>View and manage your stocks.</p>
+      <div class="dashboard-links">
+        <a href="/stocks">View Stocks</a> | <a href="/orders">View Orders</a> |
+        <a th:href="@{|/${user.userid}/history|}">View Order History</a>
+      </div>
+    </div>
 
-    <a href="/logout">Logout</a>
+    <!-- <div class="container">
+      <h1>User Dashboard</h1>
+      <p>Manage your stock orders and view your transaction history.</p> -->
 
-    <p>View and manage your stocks.</p>
+      <!-- User Account Summary -->
+      <!-- <div class="account-summary">
+        <h2>Account Details</h2>
+        <p>
+          <strong>Account Balance:</strong> $<span th:text="${user.balance}"
+            >10000.00</span
+          >
+        </p>
+        <p>
+          <strong>Total Portfolio Value:</strong> $<span
+            th:text="${user.portfolioValue}"
+            >5000.00</span
+          >
+        </p>
+        <p>
+          <strong>Last Login:</strong>
+          <span th:text="${user.lastLogin}">2024-10-01 10:00 AM</span>
+        </p>
+      </div> -->
 
+      <!-- Stock Portfolio Summary -->
+      <!-- <div class="portfolio-summary">
+        <h2>Your Stock Portfolio</h2>
+        <p>
+          <strong>Total Stocks Owned:</strong>
+          <span th:text="${user.totalStocks}">50</span>
+        </p>
+        <p>
+          <strong>Total Value:</strong> $<span
+            th:text="${user.totalPortfolioValue}"
+            >15000.00</span
+          >
+        </p>
+      </div> -->
 
-    <a href="/stocks">View Stocks</a> | 
-    <a href="/orders">View Orders</a> | 
-    <a th:href="@{|/${user.userid}/history|}">View Order History</a>
+      <!-- Recent Transactions -->
+      <!-- <div class="recent-transactions">
+        <h2>Recent Transactions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Stock Symbol</th>
+              <th>Company Name</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody th:each="transaction : ${recentTransactions}">
+            <tr>
+              <td th:text="${transaction.stockSymbol}">AAPL</td>
+              <td th:text="${transaction.companyName}">Apple Inc.</td>
+              <td th:text="${transaction.quantity}">10</td>
+              <td th:text="${transaction.price}">$1500</td>
+              <td th:text="${transaction.date}">2024-10-02</td>
+            </tr>
+          </tbody>
+        </table>
+      </div> -->
 
+      <!-- Navigation Links for different tables -->
+      <!-- <div class="dashboard-links">
+        <a href="/stocks">View Stocks</a> | <a href="/orders">View Orders</a> |
+        <a href="/history">View Order History</a>
+      </div> -->
+
+      <!-- Add a section for market news -->
+      <!-- <div class="market-news">
+        <h2>Market News</h2>
+        <p>Stay updated with the latest market trends!</p>
+        <ul>
+          <li>Apple Stock rises 2% after new product launch.</li>
+          <li>Tesla hits all-time high in stock price.</li>
+          <li>Amazon announces partnership with Microsoft, stock soars.</li>
+        </ul>
+      </div> -->
+
+      <!-- Stock Performance Chart Placeholder -->
+      <!-- <div class="stock-performance-chart">
+        <h2>Stock Performance Overview</h2>
+        <canvas id="stockChart"></canvas>
+      </div>
+    </div> -->
+
+    <!-- Chart.js for stock performance graphs -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const ctx = document.getElementById("stockChart").getContext("2d");
+      const stockChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+          ],
+          datasets: [
+            {
+              label: "Portfolio Value",
+              data: [
+                10000, 10500, 11000, 11500, 12000, 12500, 13000, 13500, 14000,
+                14500,
+              ],
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 2,
+            },
+          ],
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    </script> -->
   </body>
 </html>

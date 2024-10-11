@@ -4,48 +4,54 @@
     <meta charset="UTF-8" />
     <title>Order Dashboard</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
   </head>
   <body>
-    <h1>Orders for User: <span th:text="${user.username}"></span></h1>
+    <nav class="navbar">
+      <div class="navbar-left">
+        <span>Welcome, <span th:text="${user.username}">Username</span>!</span>
+      </div>
+      <div class="navbar-right">
+        <span>User ID: <span th:text="${user.userid}">UserID</span></span>
+        <a href="/user" class="dashboard-btn">Back to Dashboard</a>
+        <a href="/logout" class="logout-btn">Logout</a>
+      </div>
+    </nav>
 
-    <a href="/logout">Logout</a>
-    
-    <!-- Table for displaying user orders -->
-    <table>
-      <tr>
-        <th>Stock Symbol</th>
-        <th>Company Name</th>
-        <th>Stock Price</th>
-        <th>Quantity</th>
-        <th>Order Price</th>
-        <th>Date</th>
-        <th>Order Type</th>
-      </tr>
-      <tr th:each="order : ${orders}">
-        <td th:text="${order.stockSymbol}"></td>
-        <td th:text="${order.companyName}"></td>
-        <td th:text="${order.stockPrice}"></td>
-        <td th:text="${order.quantity}"></td>
-        <td th:text="${order.orderPrice}"></td>
-        <td th:text="${order.orderDate}"></td>
-        <td th:text="${order.action}"></td>
-        <td>
-          <button
-            th:onclick="sellStock([[${order.stockSymbol}]], [[${order.quantity}]], [[${order.stockPrice}]])"
-          >
-            Sell
-          </button>
-        </td>
-      </tr>
-    </table>
+    <div class="container">
+      <h2>Your Stocks</h2>
 
-    <a href="/user">Back to Dashboard</a>
-
-    <div>
-      <h2>Your Order Status</h2>
       <p>Total Orders Placed: <span id="orderCount"></span></p>
+
+      <table>
+        <tr>
+          <th>Stock Symbol</th>
+          <th>Company Name</th>
+          <th>Stock Price</th>
+          <th>Quantity</th>
+          <th>Order Price</th>
+          <th>Date</th>
+          <th>Order Type</th>
+        </tr>
+        <tr th:each="order : ${orders}">
+          <td th:text="${order.stockSymbol}"></td>
+          <td th:text="${order.companyName}"></td>
+          <td th:text="${order.stockPrice}"></td>
+          <td th:text="${order.quantity}"></td>
+          <td th:text="${order.orderPrice}"></td>
+          <td th:text="${order.orderDate}"></td>
+          <td th:text="${order.action}"></td>
+          <td>
+            <button
+              th:onclick="sellStock([[${order.stockSymbol}]], [[${order.quantity}]], [[${order.stockPrice}]])"
+            >
+              Sell
+            </button>
+          </td>
+        </tr>
+      </table>
     </div>
+
 
     <script>
       function sellStock(symbol, userAvailableQuantity, price) {
