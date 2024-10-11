@@ -1,21 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-</head>
-<body>
-<h1>Login</h1>
-<form action="/login" method="POST">
-    <label for="userid">userid:</label>
-    <input type="text" id="userid" name="userid" required>
-    <br><br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br><br>
-    <button type="submit">Login</button>
-</form>
-<p><a href="/register">Create an account</a></p>
-</body>
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Login</h1>
+
+      <!-- Display error message if userid is already in use -->
+      <div id="login_error" th:if="${error != null}" style="color: red">
+        <p th:text="${error}">Invalid ID or Password</p>
+      </div>
+
+      <form action="/login" method="POST">
+        <div class="input-group">
+          <label for="userid">User ID:</label>
+          <input type="text" id="userid" name="userid" required />
+        </div>
+        <div class="input-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <div class="input-group">
+          <button type="submit">Login</button>
+        </div>
+      </form>
+
+      <p class="login-link">Don't have an account? <a href="/register">Register here</a></p>
+    </div>
+  </body>
 </html>

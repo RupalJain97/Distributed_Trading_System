@@ -5,16 +5,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Dashboard</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
   </head>
   <body>
 
     <h1>Welcome, <span th:text="${user.username}">User</span></h1>
     <p>Your User ID is: <span th:text="${user.userid ?: 'Unknown name'}">UserID</span></p>
 
-    <!-- Stock details and other actions like Buy/Sell will go here -->
+    <a href="/logout">Logout</a>
+
     <p>View and manage your stocks.</p>
 
-    <!-- Buttons for different actions -->
+
     <a href="/stocks">View Stocks</a> | 
     <a href="/orders">View Orders</a> | 
     <a th:href="@{|/${user.userid}/history|}">View Order History</a>

@@ -1,28 +1,36 @@
 package com.trading.service;
 
 import com.trading.model.UserModel;
+import com.trading.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
-import java.util.Map;
+
 
 @Service
 public class UserService {
-    // Simple user store (replace with DB later)
-    private Map<String, UserModel> users = new HashMap<>();
-    // UserModel firstUser = new UserModel("Rupli", "rupaljain", "12345");
-    // users.put("rupaljain", firstUser);
+
+    @Autowired
+    private UserRepository userRepository;
 
     public UserModel validateUser(String userid, String password) {
-        UserModel user = users.get(userid);
+        UserModel user = userRepository.findByUserid(userid);
         if (user != null && user.getPassword().equals(password)) {
+            System.out.println("Password matched: "+ user);
             return user;
         }
         return null;
     }
 
-    public UserModel registerUser(String username, String userid, String password) {
+    public UserModel registerUser(String username, String userid, String password) throws Exception {
+        if (userRepository.findByUserid(userid) != null) {
+            throw new Exception("User ID already in use.");
+        }
         UserModel user = new UserModel(username, userid, password);
-        users.put(userid, user);
-        return user;
+        return userRepository.save(user);
+    }
+
+    public UserModel getUserByUserid(String userid) {
+        return userRepository.findByUserid(userid);
     }
 }

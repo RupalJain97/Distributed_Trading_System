@@ -22,15 +22,22 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String userid, @RequestParam String password, Model model) {
+    public String login(@RequestParam String userid, @RequestParam String password, HttpSession session, Model model) {
         UserModel user = userService.validateUser(userid, password);
         if (user != null) {
-            model.addAttribute("user", user);
+            session.setAttribute("user", user);
+            System.out.println("Redirecting to User Dashboard: ");
             return "redirect:/user"; // redirect to user dashboard page
         } else {
             model.addAttribute("error", "Invalid userid or password");
             return "login"; // stay on login page with error message
         }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // Invalidate the session
+        return "redirect:/login"; // Redirect to the login page
     }
 
     @GetMapping("/register")
@@ -45,9 +52,15 @@ public class UserController {
         System.out.println("Received username: " + username);
         System.out.println("Received userid: " + userid);
         System.out.println("Received password: " + password);
-        UserModel user = userService.registerUser(username, userid, password);
-        session.setAttribute("user", user);
-        return "redirect:/user"; // redirect to dashboard after successful registration
+        try {
+            UserModel user = userService.registerUser(username, userid, password);
+            System.out.println("Registering user: " + user);
+            session.setAttribute("user", user);
+            return "redirect:/user"; // redirect to dashboard after successful registration
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "register"; // return back to registration page with error
+        }
     }
 
     @GetMapping("/user")
@@ -57,7 +70,7 @@ public class UserController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
-        
+
         System.out.println("Redirecting to /user...");
         System.out.println("Received username: " + user.getUsername());
         System.out.println("Received userid: " + user.getUserid());

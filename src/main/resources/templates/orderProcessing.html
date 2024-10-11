@@ -3,10 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>Order Dashboard</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
   </head>
   <body>
     <h1>Orders for User: <span th:text="${user.username}"></span></h1>
 
+    <a href="/logout">Logout</a>
+    
     <!-- Table for displaying user orders -->
     <table>
       <tr>
@@ -37,17 +41,6 @@
     </table>
 
     <a href="/user">Back to Dashboard</a>
-
-    <!-- <div>
-      <h2>Sell Stocks</h2>
-      <form id="sellForm">
-        <label for="sellSymbol">Stock Symbol:</label>
-        <input type="text" id="sellSymbol" name="sellSymbol" required />
-        <label for="sellQuantity">Quantity:</label>
-        <input type="number" id="sellQuantity" name="sellQuantity" required />
-        <button type="submit">Sell</button>
-      </form>
-    </div> -->
 
     <div>
       <h2>Your Order Status</h2>

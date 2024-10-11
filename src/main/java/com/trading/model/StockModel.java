@@ -1,13 +1,29 @@
 package com.trading.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.persistence.*;
 
+@Entity
 public class StockModel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long stockid; // Auto-generated id
+
+    @Column(name = "symbol", nullable = false)
     private String symbol;
+
+    @Column(name = "companyname", nullable = false)
     private String companyName;
+
+    @Column(name = "quantity", nullable = false, unique = true)
     private int quantity;
+
+    @Column(name = "price", nullable = false)
     private double price;
+
+    // No-argument constructor (required by JPA)
+    public StockModel() {
+    }
 
     // Constructor, Getters, and Setters
     public StockModel(String symbol, String companyName, int quantity, double price) {
@@ -15,6 +31,14 @@ public class StockModel {
         this.companyName = companyName;
         this.quantity = quantity;
         this.price = price;
+    }
+
+    public Long getId() {
+        return stockid;
+    }
+
+    public void setId(Long id) {
+        this.stockid = id;
     }
 
     public String getSymbol() {
