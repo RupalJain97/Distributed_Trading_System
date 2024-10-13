@@ -16,37 +16,38 @@ Concurrency Management: Utilize Java’s Concurrency API, particularly thread po
 
 #### Microservices Architecture
 **Order Processing Microservice:**
-1. Implement the order processing logic where multiple users can buy or sell stocks concurrently.
-2. Use ExecutorService to manage a pool of threads that handle these transactions.
-3. Implement Atomic variables to safely update shared resources like stock availability.
-4. Utilize thread pools to execute multiple stock trade requests in parallel, ensuring minimal latency.
+1. Implement the order processing logic where multiple users can buy or sell stocks concurrently. - TODO
+2. Use ExecutorService to manage a pool of threads that handle these transactions. - TODO
+3. Implement Atomic variables to safely update shared resources like stock availability. - TODO
+4. Utilize thread pools to execute multiple stock trade requests in parallel, ensuring minimal latency. - TODO
 
 *REST Endpoints:*
-* POST /orders/buy: To place a buy order.
+* GET /orders: To show the stocks help by the user.
 * POST /orders/sell: To place a sell order.
-* GET /orders/{userId}: To check order status.
+* GET /orders/{userId}: To get number of stocks held by the user.
+* GET /{userID}/history: To get the user's order history
 
 **User Management Microservice:**
-1. Handle user registration, authentication, and session management.
-2. Ensure thread safety while accessing and updating user data. Using synchronized blocks or concurrent data structures.
+1. Handle user registration, authentication, and session management. - DONE
+2. Ensure thread safety while accessing and updating user data. Using synchronized blocks or concurrent data structures. - TODO
 
 *REST Endpoints:*
 
-* POST /users/register: For user registration.
-* POST /users/login: For user login and session management.
-* GET /users/{userId}: To fetch user profile data.
+* GET/POST /register: For user registration.
+* GET/POST /login: For user login and session management.
+* GET /user: To fetch user profile data.
+* GET /logout: Logout of current session
 
 **Stock Management Microservice:**
-1. Maintain real-time stock price data and update stock availability.
-2. Handle concurrent access to stock data using synchronization mechanisms. 
-3. Provide an API for the Order Processing Service to retrieve stock prices and quantities.
-4. Use in-memory caching (e.g., Redis) to reduce load on the database and provide faster access to frequently requested stock data.
+1. Maintain real-time stock price data and update stock availability. - ToDo
+2. Handle concurrent access to stock data using synchronization mechanisms.  - TODO
+3. Use in-memory caching (e.g., Redis) to reduce load on the database and provide faster access to frequently requested stock data. - TODO
 
 *REST Endpoints:*
 
 * GET /stocks: Fetch the list of all available stocks.
-* GET /stocks/{stockId}: Get details (price, availability) of a specific stock.
-* PUT /stocks/{stockId}: Update stock data when an order is processed.
+* PUT /stocks/{stockId}: Update stock data when an order is processed. - TODO
+* POST /stocks/buy: To place a buy order.
 
 
 #### Concurrency Management:
@@ -56,19 +57,19 @@ Concurrency Management: Utilize Java’s Concurrency API, particularly thread po
 
 #### Data Consistency:
 
-1. For distributed systems, use a **distributed database** (e.g., MongoDB, PostgreSQL) to manage stock and user data across multiple instances of the microservices.
-2. Ensure data consistency with **synchronization mechanisms** and transactions where necessary.
+1. For distributed systems, use a **distributed database, (MySQL)**,  to manage stock and user data across multiple instances of the microservices. - DONE
+2. Ensure data consistency with **synchronization mechanisms** and transactions where necessary. - TODO
 
 
 ## Integrate Spring Boot for UI and REST APIs
 
 **Spring Boot REST Controllers:**
-1. Expose REST APIs for each microservice, enabling clients to interact with the system.
-2. Implement endpoints to buy, sell, and check the status of stocks.
+1. Expose REST APIs for each microservice, enabling clients to interact with the system. - DONE
+2. Implement endpoints to buy, sell, and check the status of stocks. - DONE
 
 **Spring Boot-powered UI:**
-1. Develop a dynamic front-end using Thymeleaf (or any preferred front-end framework) integrated with Spring Boot.
-2. Display real-time metrics such as execution time, active threads, and the number of processed transactions.
+1. Develop a dynamic front-end using Thymeleaf (or any preferred front-end framework) integrated with Spring Boot. - DONE
+2. Display real-time metrics such as execution time, active threads, and the number of processed transactions. - TODO
 
 ## Deploy the Application
 **Dockerize** the Application: Create Docker images for each microservice and deploy them using Docker Compose or Kubernetes.
