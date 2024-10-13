@@ -2,10 +2,19 @@ package com.trading.service;
 
 import com.trading.model.OrderModel;
 import com.trading.model.StockModel;
+import com.trading.model.UserHoldingsModel;
+import com.trading.repository.OrderRepository;
+import com.trading.repository.StockRepository;
+import com.trading.repository.UserHoldingsRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,104 +23,97 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class OrderService {
 
-    // private final List<StockModel> stocks;
-    private ConcurrentHashMap<String, List<OrderModel>> orderDatabase = new ConcurrentHashMap<>();
+    @Autowired
+    private StockService stockService;
 
-    private ConcurrentHashMap<String, List<OrderModel>> userHistoryDatabase = new ConcurrentHashMap<>();
+    @Autowired
+    private StockRepository stockRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private UserHoldingsRepository userHoldingsRepository;
+
+    private ConcurrentHashMap<String, List<OrderModel>> orderCache = new ConcurrentHashMap<>();
 
     // private final AtomicInteger orderCount = new AtomicInteger(0);
     // private final ExecutorService executorService =
     // Executors.newFixedThreadPool(5);
 
     public void placeBuyOrder(OrderModel order, String userId) {
-        List<OrderModel> userOrders = orderDatabase.getOrDefault(userId, new ArrayList<>());
-        StockModel company_stock = StockService.findStockBySymbol(order.getStockSymbol());
-        order.setCompanyName(company_stock.getCompanyName());
+        StockModel stock = stockRepository.findBySymbol(order.getStockSymbol());
+        order.setCompanyName(stock.getCompanyName());
         order.setOrderDate();
 
-        System.out.println(order.toString());
-        userOrders.add(order); // Add the new order
-        orderDatabase.put(userId, userOrders);
-        addToOrderHistory(order, userId);
-
-        // executorService.execute(() -> {
-        // StockModel stock = findStockBySymbol(order.getStockSymbol());
-        // if (stock != null && order.getQuantity() > 0) {
-        // stock.setPrice(stock.getPrice() + 1); // Simulate stock price increase after
-        // buying
-        // orderCount.incrementAndGet();
-        // System.out.println("Buy Order placed for " + order.getQuantity() + " shares
-        // of " + stock.getSymbol());
-        // }
-        // });
-
-        // Update stock price after buying (optional, could simulate price change)
-        StockModel stock = StockService.findStockBySymbol(order.getStockSymbol());
+        System.out.println("Order received: " + order );
         if (stock != null) {
-            stock.setQuantity(stock.getQuantity() - order.getQuantity()); // Update stock quantity
-            stock.setPrice(stock.getPrice() + 1); // Simulate stock price increase after buying
+            stock.setQuantity(stock.getQuantity() - order.getQuantity());
+            stockRepository.save(stock);
         }
+
+        Optional<UserHoldingsModel> userHoldingOpt = userHoldingsRepository.findByUserIdAndStockSymbol(userId,
+                order.getStockSymbol());
+
+        UserHoldingsModel userHolding = userHoldingOpt.orElse(new UserHoldingsModel(null, userId,
+                order.getStockSymbol(), stock.getCompanyName(), 0, 0, order.getOrderDate()));
+
+        userHolding.setCurrentQuantity(userHolding.getCurrentQuantity() + order.getQuantity());
+        userHolding.setLastPrice(stock.getPrice());
+        userHolding.setLastOrderDate(order.getOrderDate());
+
+        userHoldingsRepository.save(userHolding);
+
+        orderRepository.save(order);
+        orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
 
         System.out.println("Buy Order placed for " + order.getQuantity() + " shares of " + order.getStockSymbol());
     }
 
     public void placeSellOrder(OrderModel order, String userId) {
-        StockModel company_stock = StockService.findStockBySymbol(order.getStockSymbol());
-        order.setCompanyName(company_stock.getCompanyName());
+        StockModel stock = stockRepository.findBySymbol(order.getStockSymbol());
+        order.setCompanyName(stock.getCompanyName());
         order.setOrderDate();
         
-        List<OrderModel> orders = orderDatabase.getOrDefault(userId, new ArrayList<>());
-        OrderModel orderToSell = orders.stream()
-                .filter(o -> o.getStockSymbol().equals(order.getStockSymbol()))
-                .findFirst()
-                .orElse(null);
-
-        if (orderToSell != null) {
-            int remainingQuantity = orderToSell.getQuantity() - order.getQuantity();
+        Optional<UserHoldingsModel> userHoldingOpt = userHoldingsRepository.findByUserIdAndStockSymbol(userId,
+                order.getStockSymbol());
+        if (userHoldingOpt.isPresent()) {
+            UserHoldingsModel userHolding = userHoldingOpt.get();
+            int remainingQuantity = userHolding.getCurrentQuantity() - order.getQuantity();
             if (remainingQuantity <= 0) {
-                orders.remove(orderToSell); // Remove if fully sold
-            } 
-            orderToSell.setQuantity(remainingQuantity);
-            addToOrderHistory(order, userId);
-            orderDatabase.put(userId, orders); 
+                userHoldingsRepository.delete(userHolding);
+            } else {
+                userHolding.setCurrentQuantity(remainingQuantity);
+                userHolding.setLastPrice(stockRepository.findBySymbol(order.getStockSymbol()).getPrice());
+                userHolding.setLastOrderDate(order.getOrderDate());
+                userHoldingsRepository.save(userHolding);
+            }
+            orderRepository.save(order);
+        } else {
+            throw new RuntimeException("Cannot sell stock user does not own.");
         }
-
-        // executorService.execute(() -> {
-        // StockModel stock = findStockBySymbol(order.getStockSymbol());
-        // if (stock != null && order.getQuantity() > 0) {
-        // stock.setPrice(stock.getPrice() - 1); // Simulate stock price decrease after
-        // selling
-        // orderCount.incrementAndGet();
-        // System.out.println("Sell Order placed for " + order.getQuantity() + " shares
-        // of " + stock.getSymbol());
-        // }
-        // });
     }
 
-    // Retrieve user orders
-    public List<OrderModel> getUserOrders(String userId) {
-        System.out.println(orderDatabase.getOrDefault(userId, new ArrayList<>()));
-        return orderDatabase.getOrDefault(userId, new ArrayList<>());
-    }
+    // Scheduled task that runs every minute to persist cached orders (optional)
+    @Scheduled(fixedRate = 60000) // 1 minute
+    public void updateOrderHistory() {
+        for (Entry<String, List<OrderModel>> entry : orderCache.entrySet()) {
+            List<OrderModel> orders = entry.getValue();
+            orderRepository.saveAll(orders);
+            entry.getValue().clear(); // Clear the cache after saving
 
-    // Retrieve order history
-    public List<OrderModel> getUserOrderHistory(String userId) {
-        List<OrderModel> history = userHistoryDatabase.getOrDefault(userId, new ArrayList<>());
-        for (OrderModel temp : history) {
-            System.out.println(temp.toString());
         }
-        return userHistoryDatabase.getOrDefault(userId, new ArrayList<>());
     }
 
-    // Helper method to add to order history
-    private void addToOrderHistory(OrderModel order, String userId) {
-        List<OrderModel> orderHistory = userHistoryDatabase.getOrDefault(userId, new ArrayList<>());
-        orderHistory.add(order);
-        userHistoryDatabase.put(userId, orderHistory);
+    public List<UserHoldingsModel> getUserStocksByUserId(String userId) {
+        return userHoldingsRepository.findByUserId(userId);
     }
 
-    public int getOrderCount() {
-        return orderDatabase.values().stream().mapToInt(List::size).sum();
+    public List<OrderModel> getOrderHistoryByUserId(String userId) {
+        return orderRepository.findAllByUserid(userId);
     }
 
+    public int getOrderCount(String userId) {
+        return userHoldingsRepository.countDistinctCompaniesByUserId(userId);
+    }
 }

@@ -81,6 +81,26 @@ button:hover {
     background-color: #0056b3;
 }
 
+button:hover {
+    color: white !important;
+    text-decoration: underline;
+}
+
+.invalid {
+    border: 2px solid red;
+    color: red;
+}
+
+.valid {
+    border: 1px solid green;
+    color: black;
+}
+
+.disabled-button {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
 
 
 /* ******************************
@@ -172,6 +192,14 @@ button:hover {
     border-radius: 5px;
 }
 
+.logout-btn:hover,
+.dashboard-btn:hover {
+    text-decoration: underline;
+    background-color: #1876dc;
+    color: white;
+}
+
+
 
 .container {
     max-width: 1200px;
@@ -199,7 +227,7 @@ button:hover {
     text-decoration: underline;
 }
 
-.stock-count{
+.stock-count {
     font-weight: bold;
     font-size: 15px;
     font-style: italic;

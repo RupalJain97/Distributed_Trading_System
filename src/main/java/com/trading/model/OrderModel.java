@@ -1,28 +1,61 @@
 package com.trading.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 
+@Entity
 public class OrderModel {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "userid")
+    private String userId;
+
+    @Column(name = "stock_symbol")
     private String stockSymbol;
-    private int quantity;
+
+    @Column(name = "company_name")
     private String companyName;
+
+    @Column(name = "stock_price")
     private float stockPrice;
+
+    @Column(name = "quantity")
+    private int quantity; // Represents the quantity for each transorderType
+
+    @Column(name = "order_date")
     private Date orderDate;
+
+    @Column(name = "order_price")
     private float orderPrice;
-    private String action;
+
+    @Column(name = "order_type")
+    private String orderType;
 
     public OrderModel() {
     }
 
-    public OrderModel(String stockSymbol, int quantity, String companyName, float stockPrice, Date orderDate,
-            float orderPrice, String action) {
+    public OrderModel(String userId, String stockSymbol, int quantity, String companyName, float stockPrice,
+            Date orderDate,
+            float orderPrice, String orderType) {
+        this.userId = userId;
         this.stockSymbol = stockSymbol;
         this.quantity = quantity;
         this.companyName = companyName;
         this.stockPrice = stockPrice;
         this.orderDate = orderDate;
         this.orderPrice = orderPrice;
-        this.action = action;
+        this.orderType = orderType;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getStockSymbol() {
@@ -65,12 +98,12 @@ public class OrderModel {
         return stockPrice;
     }
 
-    public String getAction() {
-        return action;
+    public String getOrderType() {
+        return orderType;
     }
 
-    public void setAction(String orderAction) {
-        this.action = orderAction;
+    public void setOrderType(String orderorderType) {
+        this.orderType = orderorderType;
     }
 
     public void printOrder() {
@@ -81,7 +114,7 @@ public class OrderModel {
         System.out.println("Quantity: " + quantity);
         System.out.println("Order Price: $" + orderPrice);
         System.out.println("Order Date: " + orderDate);
-        System.out.println("Order Type: " + action);
+        System.out.println("Order Type: " + orderType);
     }
 
     // For debugging purpose, you can override toString() as well
@@ -94,7 +127,7 @@ public class OrderModel {
                 ", Quantity=" + quantity +
                 ", Order Price=$" + orderPrice +
                 ", Order Date=" + orderDate +
-                ", Order Type=" + action +
+                ", Order Type=" + orderType +
                 '}';
     }
 }

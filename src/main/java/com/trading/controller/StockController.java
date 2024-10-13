@@ -8,9 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import jakarta.servlet.http.HttpSession;
@@ -23,12 +20,11 @@ public class StockController {
 
     @GetMapping("/stocks")
     public String showStocks(Model model, HttpSession session) {
-        // Get user from session
         UserModel user = (UserModel) session.getAttribute("user");
 
-        // if (user == null) {
-        //     return "redirect:/login"; // Redirect to login if session expires
-        // }
+        if (user == null) {
+            return "redirect:/login"; // Redirect to login if session expires
+        }
 
         model.addAttribute("user", user);
         

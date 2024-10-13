@@ -21,7 +21,10 @@
     <div class="container">
       <h2>Current Stocks Availability</h2>
 
-      <p class="stock-count" th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
+      <p
+        class="stock-count"
+        th:text="${#lists.size(stocks)} + ' stocks loaded.'"
+      ></p>
 
       <table>
         <thead>
@@ -44,7 +47,7 @@
             </td>
             <td>
               <button
-                th:onclick="buyStock([[${stock.symbol}]], [[${stock.quantity}]], [[${stock.price}]])"
+                th:onclick="buyStock([[${stock.symbol}]], [[${stock.quantity}]], [[${stock.price}]], [[${user.userid}]])"
               >
                 Buy
               </button>
@@ -55,7 +58,7 @@
     </div>
 
     <script>
-      function buyStock(symbol, availableQuantity, price) {
+      function buyStock(symbol, availableQuantity, price, userid) {
         // Get the row containing the button that was clicked
         const row = event.target.closest("tr");
 
@@ -77,25 +80,36 @@
 
           // Add Submit button
           const submitButtonCell = document.createElement("td");
-          submitButtonCell.innerHTML =
-            "<button onclick=\"submitBuyOrder('" +
-            symbol +
-            "', " +
-            price +
-            ')">Submit</button>';
+          submitButtonCell.innerHTML = `<button class="submit-btn disabled-button" disabled onclick="submitBuyOrder('${symbol}',
+            ${price}, '${userid}')">Submit</button>`;
           row.appendChild(submitButtonCell);
 
           // Add event listener to the quantity input field to calculate final price dynamically
           const quantityInput = row.querySelector(".buy-quantity");
+          const submitButton = row.querySelector(".submit-btn");
+
           quantityInput.addEventListener("input", function () {
             const quantity = parseInt(quantityInput.value) || 0;
             const finalPrice = quantity * price;
             finalPriceCell.textContent = finalPrice.toFixed(2); // Update the final price field
+
+            // Validate the input
+            if (quantity > 0 && quantity <= availableQuantity) {
+              quantityInput.classList.remove("invalid");
+              quantityInput.classList.add("valid");
+              submitButton.disabled = false;
+              submitButton.classList.remove("disabled-button");
+            } else {
+              quantityInput.classList.remove("valid");
+              quantityInput.classList.add("invalid");
+              submitButton.disabled = true;
+              submitButton.classList.add("disabled-button");
+            }
           });
         }
       }
 
-      function submitBuyOrder(symbol, price) {
+      function submitBuyOrder(symbol, price, userid) {
         const row = event.target.closest("tr");
         const user_stock_quantity = row.querySelector(".buy-quantity").value;
         const finalPrice = row.querySelector(".final-price").textContent;
@@ -107,7 +121,8 @@
             quantity: user_stock_quantity,
             stockPrice: price,
             orderPrice: finalPrice,
-            action: "Buy",
+            orderType: "Buy",
+            userId: userid,
           };
           console.log(order);
 

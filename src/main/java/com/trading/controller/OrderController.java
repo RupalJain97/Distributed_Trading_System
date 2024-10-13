@@ -1,9 +1,11 @@
 package com.trading.controller;
 
 import com.trading.model.OrderModel;
+import com.trading.model.UserHoldingsModel;
 import com.trading.model.UserModel;
 import com.trading.service.OrderService;
 import com.trading.service.StockService;
+// import com.trading.service.UserHoldingsService;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 
@@ -14,10 +16,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-// @RequestMapping("/orders")
 public class OrderController {
     @Autowired
     private OrderService orderService;
+
+    // @Autowired
+    // private UserHoldingsService userHoldingsService;
 
     @GetMapping("/orders")
     public String renderOrderProcessingPage(Model model, HttpSession session) {
@@ -27,8 +31,10 @@ public class OrderController {
             return "redirect:/login"; // Redirect to login if session expires
         }
 
-        List<OrderModel> orders = orderService.getUserOrders(user.getUserid());
-        model.addAttribute("orders", orders);
+        // List<OrderModel> orders = orderService.getUserStocksByUserId(user.getUserid());
+        List<UserHoldingsModel> holdings = orderService.getUserStocksByUserId(user.getUserid());
+        System.out.println("Users stocks: " + holdings);
+        model.addAttribute("orders", holdings);
         model.addAttribute("user", user);
         return "orderProcessing";
     }
@@ -62,7 +68,7 @@ public class OrderController {
     @GetMapping("/orders/{userId}")
     @ResponseBody
     public String getOrderStatus(@PathVariable String userId) {
-        return " "+ orderService.getOrderCount() + " ";
+        return " "+ orderService.getOrderCount(userId) + " ";
     }
 
     @GetMapping("/{userId}/history")
@@ -72,7 +78,8 @@ public class OrderController {
             return "redirect:/login"; // Redirect to login if session expires
         }
 
-        List<OrderModel> orderHistory = orderService.getUserOrderHistory(user.getUserid());
+        List<OrderModel> orderHistory = orderService.getOrderHistoryByUserId(user.getUserid());
+        System.out.println("User requesting history: " + orderHistory);
         model.addAttribute("orderHistory", orderHistory);
         model.addAttribute("user", user);
         return "userOrderHistory"; // Return order history page

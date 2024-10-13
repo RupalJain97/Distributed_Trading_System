@@ -3,19 +3,20 @@ package com.trading.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "stock_model") // Specify table name
 public class StockModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long stockid; // Auto-generated id
 
-    @Column(name = "symbol", nullable = false)
+    @Column(name = "symbol", nullable = false, unique = true)
     private String symbol;
 
     @Column(name = "companyname", nullable = false)
     private String companyName;
 
-    @Column(name = "quantity", nullable = false, unique = true)
+    @Column(name = "quantity", nullable = false)
     private int quantity;
 
     @Column(name = "price", nullable = false)
@@ -55,10 +56,6 @@ public class StockModel {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
-    }
-
-    public void setCompanyNameBySymbol(String stockSymbol){
-        // return companyName;
     }
 
     public double getPrice() {

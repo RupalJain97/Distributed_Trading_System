@@ -9,10 +9,13 @@
   <body>
     <nav class="navbar">
       <div class="navbar-left">
-        <span>Welcome, <span th:text="${user.username}">Username</span>!</span>
+        <span>Welcome, <span th:text="${user.username}">Username</span></span>
       </div>
       <div class="navbar-right">
-        <span>User ID: <span th:text="${user.userid}">UserID</span></span>
+        <span
+          >User ID:
+          <span id="userID" th:text="${user.userid}">UserID</span></span
+        >
         <a href="/user" class="dashboard-btn">Back to Dashboard</a>
         <a href="/logout" class="logout-btn">Logout</a>
       </div>
@@ -29,21 +32,22 @@
           <th>Company Name</th>
           <th>Stock Price</th>
           <th>Quantity</th>
-          <th>Order Price</th>
-          <th>Date</th>
-          <th>Order Type</th>
+          <!-- <th>Order Price</th> -->
+          <th>Last Update Date</th>
+          <!-- <th>Order Type</th> -->
         </tr>
         <tr th:each="order : ${orders}">
           <td th:text="${order.stockSymbol}"></td>
           <td th:text="${order.companyName}"></td>
-          <td th:text="${order.stockPrice}"></td>
-          <td th:text="${order.quantity}"></td>
-          <td th:text="${order.orderPrice}"></td>
-          <td th:text="${order.orderDate}"></td>
-          <td th:text="${order.action}"></td>
+          <td th:text="${order.lastPrice}"></td>
+          <td th:text="${order.currentQuantity}"></td>
+          <td
+            th:text="${#dates.format(order.lastOrderDate, 'MM-dd-yyyy, HH:hh:mm')}"
+          ></td>
+          <!-- <td th:text="${order.orderType}"></td> -->
           <td>
             <button
-              th:onclick="sellStock([[${order.stockSymbol}]], [[${order.quantity}]], [[${order.stockPrice}]])"
+              th:onclick="sellStock([[${order.stockSymbol}]], [[${order.currentQuantity}]], [[${order.lastPrice}]], [[${user.userid}]])"
             >
               Sell
             </button>
@@ -52,17 +56,19 @@
       </table>
     </div>
 
-
     <script>
-      function sellStock(symbol, userAvailableQuantity, price) {
+      window.onload = function () {
+        const userId = document.getElementById("userID").textContent;
+        fetchOrderStatus(userId);
+      };
+
+      function sellStock(symbol, userAvailableQuantity, price, userId) {
         const row = event.target.closest("tr");
 
         if (!row.querySelector(".sell-quantity")) {
           const quantityCell = document.createElement("td");
           quantityCell.innerHTML =
-            '<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="' +
-            userAvailableQuantity +
-            '">';
+            `<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="${userAvailableQuantity}">`;
           row.appendChild(quantityCell);
 
           const finalPriceCell = document.createElement("td");
@@ -72,23 +78,34 @@
 
           const submitButtonCell = document.createElement("td");
           submitButtonCell.innerHTML =
-            "<button onclick=\"submitSellOrder('" +
-            symbol +
-            "', " +
-            price +
-            ')">Submit</button>';
+            `<button class="submit-btn disabled-button" disabled onclick="submitSellOrder('${symbol}', ${price}, '${userId}')">Submit</button>`;
           row.appendChild(submitButtonCell);
 
           const quantityInput = row.querySelector(".sell-quantity");
+          const submitButton = row.querySelector(".submit-btn");
+          
           quantityInput.addEventListener("input", function () {
             const quantity = parseInt(quantityInput.value) || 0;
             const finalPrice = quantity * price;
             finalPriceCell.textContent = finalPrice.toFixed(2);
+
+            // Validate the input
+            if (quantity > 0 && quantity <= userAvailableQuantity) {
+              quantityInput.classList.remove("invalid");
+              quantityInput.classList.add("valid");
+              submitButton.disabled = false;
+              submitButton.classList.remove("disabled-button");
+            } else {
+              quantityInput.classList.remove("valid");
+              quantityInput.classList.add("invalid");
+              submitButton.disabled = true;
+              submitButton.classList.add("disabled-button");
+            }
           });
         }
       }
 
-      function submitSellOrder(symbol, price) {
+      function submitSellOrder(symbol, price, userId) {
         const row = event.target.closest("tr");
         const sellQuantity = row.querySelector(".sell-quantity").value;
         const finalPrice = row.querySelector(".final-price").textContent;
@@ -99,7 +116,8 @@
             quantity: sellQuantity,
             stockPrice: price,
             orderPrice: finalPrice,
-            action: "Sell",
+            orderType: "Sell",
+            userId: userId
           };
 
           fetch("/orders/sell", {
@@ -123,8 +141,9 @@
       }
 
       // Fetch order count
-      function fetchOrderStatus() {
-        fetch("/orders/1") // Assuming userId = 1
+      function fetchOrderStatus(userId) {
+        console.log(" User requesting: ", userId);
+        fetch(`/orders/${userId}`)
           .then((response) => response.text())
           .then(
             (data) => (document.getElementById("orderCount").textContent = data)
@@ -132,7 +151,7 @@
       }
 
       // Call the order status function periodically to update
-      setInterval(fetchOrderStatus, 100); // Update every 0.1 seconds
+      // setInterval(fetchOrderStatus, 100); // Update every 0.1 seconds
     </script>
   </body>
 </html>
