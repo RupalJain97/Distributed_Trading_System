@@ -1,87 +1,104 @@
 # Distributed Trading System
 
-Run the application:
+## Application Overview
+This project implements a distributed stock trading system that allows multiple users to buy and sell stocks concurrently. It ensures that shared resources, such as stock quantities and prices, are handled efficiently using a microservices architecture, caching, and Java’s Concurrency API.
+
+### Run the Application
+To start the application, use the following command:
+
+```
+mvn spring-boot:run
+```
+
+### Navigate to:
 
 http://localhost:8081/login
 
-mvn spring-boot:run
 
 
+## System Architecture
+The system is designed using microservices architecture with the following services:
 
-## Define the System Architecture
-Microservices Architecture: Split the application into microservices, such as Order Processing, User Management, and Stock Management services. Each microservice will handle specific tasks independently.
-Concurrency Management: Utilize Java’s Concurrency API, particularly thread pools, to manage multiple user transactions concurrently.
+* Order Processing: Manages stock buy/sell operations.
+* Stock Management: Maintains stock availability and pricing.
+* User Management: Handles user registration, authentication, and profile management.
 
-## Develop the Core Functionality
+## Concurrency Management
+We use Java's Concurrency API and thread pools to handle concurrent stock transactions and ensure thread safety during operations that modify shared resources like stock availability.
 
-#### Microservices Architecture
+## Core Functionality
+
+###  Microservices Architecture
 **Order Processing Microservice:**
-1. Implement the order processing logic where multiple users can buy or sell stocks concurrently. - TODO
-2. Use ExecutorService to manage a pool of threads that handle these transactions. - TODO
-3. Implement synchronized threads to safely update shared resources like stock availability. - TODO
-4. Utilize thread pools to execute multiple stock trade requests in parallel, ensuring minimal latency. - TODO
+1. Implement the order processing logic where multiple users can buy or sell stocks concurrently. - DONE
+2. Use `ExecutorService` to manage a pool of threads that handle these transactions. - DONE
+3. Implement `synchronized threads` to safely update shared resources like stock availability. - DONE
+4. Utilize thread pools to execute multiple stock trade requests in parallel, ensuring minimal latency. - DONE
 
-Solution:
-1. *synchronized blocks* ensure that shared resources like stock availability and prices are safely updated by one thread at a time.
-2. *ExecutorService* is introduced for concurrent handling of stock transactions.
-
-
-*REST Endpoints:*
-* GET /orders: To show the stocks help by the user.
-* POST /orders/sell: To place a sell order.
-* GET /orders/{userId}: To get number of stocks held by the user.
-* GET /{userID}/history: To get the user's order history
+*synchronized blocks* ensure that shared resources like stock availability and prices are safely updated by one thread at a time.
 
 
 **Stock Management Microservice:**
-1. Maintain real-time stock price data and update stock availability. - ToDo
-2. Handle concurrent access to stock data using synchronization mechanisms.  - TODO
-3. Use in-memory caching (e.g., Redis) to reduce load on the database and provide faster access to frequently requested stock data. - TODO
-
-Solutions:
-1. *Thread Safety:* The synchronized block ensures that only one thread can update the stock's price and quantity at a time.
-
-
-*REST Endpoints:*
-
-* GET /stocks: Fetch the list of all available stocks.
-* PUT /stocks/{stockId}: Update stock data when an order is processed. - TODO
-* POST /stocks/buy: To place a buy order.
+1. Maintain real-time stock price data and update stock availability. - DONE
+2. Synchronizes access to stock data to prevent inconsistent updates from multiple threads.  - DONE
+3. Uses in-memory caching (e.g., Redis) to provide fast access to frequently requested stock data and reduce the load on the database. - DONE
 
 
 **User Management Microservice:**
 1. Handle user registration, authentication, and session management. - DONE
-2. Ensure thread safety while accessing and updating user data. Using synchronized blocks or concurrent data structures. - TODO
-
-*REST Endpoints:*
-
-* GET/POST /register: For user registration.
-* GET/POST /login: For user login and session management.
-* GET /user: To fetch user profile data.
-* GET /logout: Logout of current session
+2. Ensures thread-safe access to user data by using concurrent data structures and synchronized blocks where necessary. - TODO
 
 
+### Concurrency Management:
 
-#### Concurrency Management:
+1. **Thread Pools:** The system uses `ExecutorService` to manage a pool of threads that handle stock buy/sell requests in parallel.
+2. **Atomic Variables:** Thread-safe variables ensure that stock quantities and prices are updated without race conditions.
+3. **Synchronized Blocks:** Critical sections are synchronized to ensure that only one thread can update a stock’s data at a time.
 
-1. Use **Java’s Concurrency API** with thread pools for efficient handling of multiple stock orders simultaneously.
-2. Use **atomic variables for thread-safe operations**, especially when updating stock prices or executing trades.
+### Caching
+1. **Stock Cache:** The stock data is cached to reduce load on the database. The cache is refreshed every 1 minute, or when stocks are modified during buy/sell operations.
+2. **Order Cache:** Buy/sell orders are cached and updated in the database every minute to ensure efficient batch processing.
 
-#### Data Consistency:
+### Data Consistency:
 
-1. For distributed systems, use a **distributed database, (MySQL)**,  to manage stock and user data across multiple instances of the microservices. - DONE
-2. Ensure data consistency with **synchronization mechanisms** and transactions where necessary. - TODO
+The system uses **MySQL** to manage user and stock data. **Transactions and synchronized blocks** ensure that concurrent operations maintain consistency across all services.
 
 
-## Integrate Spring Boot for UI and REST APIs
+### REST API Endpoints
+**Order Processing:**
 
-**Spring Boot REST Controllers:**
-1. Expose REST APIs for each microservice, enabling clients to interact with the system. - DONE
-2. Implement endpoints to buy, sell, and check the status of stocks. - DONE
+* GET /orders: Fetch stocks held by the user.
+* POST /orders/sell: Place a sell order.
+* GET /orders/{userId}: Get the number of stocks held by the user.
+* GET /{userID}/history: Retrieve a user’s order history.
 
-**Spring Boot-powered UI:**
-1. Develop a dynamic front-end using Thymeleaf (or any preferred front-end framework) integrated with Spring Boot. - DONE
-2. Display real-time metrics such as execution time, active threads, and the number of processed transactions. - TODO
+**Stock Management:**
+
+* GET /stocks: Fetch the list of all available stocks.
+* POST /stocks/buy: Place a buy order.
+
+**User Management:**
+
+* GET/POST /register: User registration.
+* GET/POST /login: User login.
+* GET /user: Fetch user profile.
+* GET /logout: Logout of current session.
+
+
+### UI and Frotnend
+
+The frontend uses **Thymeleaf** templates integrated with **Spring Boot** for dynamic content rendering.
+
+**HTML Pages:**
+
+* **login.html:** User login page.
+* **register.html:** User registration.
+* **userDashboard.html:** Displays user-specific data after login.
+* **stock_dashboard.html:** Displays available stocks for buying/selling.
+* **orderProcessing.html:** Allows users to place buy/sell orders.
+
+
+Display real-time metrics such as execution time, active threads, and the number of processed transactions. - **TODO**
 
 ## Deploy the Application
 **Dockerize** the Application: Create Docker images for each microservice and deploy them using Docker Compose or Kubernetes.
@@ -92,7 +109,7 @@ Solutions:
 
 #### Controllers:
 These act as the entry points for various HTTP requests and communicate with services to perform business logic. 
-1. **OrderController:** Handles operations like buying and selling stocks via EST endpoints.
+1. **OrderController:** Handles operations like buying and selling stocks via REST endpoints.
 2. **StockController:** Provides information about available stocks, such as current stock prices.
 3. **UserController:** Manages user-related operations like login, registration, and retrieving user-specific data.
 
@@ -105,17 +122,10 @@ These represent the entities or data structures that the system manipulates.
 #### Services:
 These contain the core business logic. Controllers delegate requests to services to handle the actual work:
 
-1. **OrderService:** Processes buy/sell orders, updating stock availability and ensuring data integrity (using thread-safe operations with Atomic variables and thread pools).
-2. **StockService:** Manages real-time updates to stock data and responds to requests for current stock prices.
+1. **OrderService:** Processes buy/sell operations and ensures thread-safe updates to stocks.
+2. **StockService:** Manages real-time updates to stock data and responds to requests for current stock prices, including caching.
 3. **UserService:** Handles user registration, login, and authentication logic.
 
-#### HTML Templates:
-These are frontend files used to render the UI in the browser. The views are served by the Spring Boot controllers and filled with dynamic content:
-* login.html: Handles user login.
-* register.html: For user registration.
-* userDashboard.html: After login, users are redirected to this page, where they can view their profile or other personalized details.
-* stock_dashboard.html: Displays the available stocks and their prices, allowing users to buy or sell them.
-* orderProcessing.html: This page handles the order placement process (buy/sell stocks).
 
 *Trading System Logic:*
 The TradingSystem class likely acts as a utility or central service to coordinate multiple services. It could handle tasks like validating an order, updating user balances, or managing stock data across multiple services.

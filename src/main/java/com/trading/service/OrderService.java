@@ -119,7 +119,6 @@ public class OrderService {
             List<OrderModel> orders = entry.getValue();
             orderRepository.saveAll(orders);
             entry.getValue().clear(); // Clear the cache after saving
-
         }
     }
 

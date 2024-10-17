@@ -62,7 +62,7 @@ public class StockService {
         }
     }
 
-    @Scheduled(fixedRate = 600000) // Clear cache every 10 minutes
+    @Scheduled(fixedRate = 60000) // Clear cache every 1 minute
     public void clearStockCache() {
         stockCache.clear();
         System.out.println("Stock cache cleared");
