@@ -16,7 +16,6 @@ public class UserService {
     public UserModel validateUser(String userid, String password) {
         UserModel user = userRepository.findByUserid(userid);
         if (user != null && user.getPassword().equals(password)) {
-            System.out.println("Password matched: "+ user);
             return user;
         }
         return null;

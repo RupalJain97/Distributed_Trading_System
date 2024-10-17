@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import jakarta.servlet.http.HttpSession;
@@ -27,12 +28,15 @@ public class StockController {
         }
 
         model.addAttribute("user", user);
-        
-        System.out.println("Stocks....");
-        
         List<StockModel> current_stocks = stockService.getAvailableStocks();
         model.addAttribute("stocks", current_stocks);
-        return "stock_dashboard"; 
+        return "stock_dashboard";
     }
 
+    // Return stock data as JSON for polling
+    @GetMapping("/stocks/data")
+    @ResponseBody
+    public List<StockModel> getStockData() {
+        return stockService.getAvailableStocks(); // Return stock data as JSON
+    }
 }

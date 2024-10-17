@@ -90,8 +90,16 @@ public class OrderModel {
         this.companyName = StockCompanyName;
     }
 
+    public void setOrderPrice(float orderPrice) {
+        this.orderPrice = orderPrice;
+    }
+
     public float getOrderPrice() {
         return orderPrice;
+    }
+
+    public void setStockPrice(float stockPrice) {
+        this.stockPrice = stockPrice;
     }
 
     public float getStockPrice() {

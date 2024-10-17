@@ -26,7 +26,6 @@ public class UserController {
         UserModel user = userService.validateUser(userid, password);
         if (user != null) {
             session.setAttribute("user", user);
-            System.out.println("Redirecting to User Dashboard: ");
             return "redirect:/user"; // redirect to user dashboard page
         } else {
             model.addAttribute("error", "Invalid userid or password");
@@ -48,13 +47,8 @@ public class UserController {
     @PostMapping("/register")
     public String register(@RequestParam String username, @RequestParam String userid, @RequestParam String password,
             HttpSession session, Model model) {
-        System.out.println("Registering the user..... ");
-        System.out.println("Received username: " + username);
-        System.out.println("Received userid: " + userid);
-        System.out.println("Received password: " + password);
         try {
             UserModel user = userService.registerUser(username, userid, password);
-            System.out.println("Registering user: " + user);
             session.setAttribute("user", user);
             return "redirect:/user"; // redirect to dashboard after successful registration
         } catch (Exception e) {
@@ -71,12 +65,7 @@ public class UserController {
             return "redirect:/login"; // Redirect to login if session expires
         }
 
-        System.out.println("Redirecting to /user...");
-        System.out.println("Received username: " + user.getUsername());
-        System.out.println("Received userid: " + user.getUserid());
-        System.out.println(user);
         model.addAttribute("user", user);
-        System.out.println(model.getAttribute("user"));
         return "userDashboard"; // Return the dashboard HTML page
     }
 }

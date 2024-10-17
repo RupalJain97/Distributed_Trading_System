@@ -35,8 +35,8 @@
             <th>Quantity</th>
           </tr>
         </thead>
-        <tbody>
-          <tr th:each="stock : ${stocks}">
+        <tbody id="stock-table-body">
+          <tr th:each="stock : ${stocks}" th:id="${'stock-row-' + stock.symbol}">
             <td id="symbol" th:text="${stock.symbol}">Stock Symbol</td>
             <td id="companyName" th:text="${stock.companyName}">
               Company Name
@@ -55,9 +55,47 @@
           </tr>
         </tbody>
       </table>
+
+      <p id="last-updated-time"></p>
     </div>
 
     <script>
+      // Function to fetch updated stock data and refresh the table
+      function fetchUpdatedStocks() {
+        fetch("/stocks/data")
+          .then((response) => response.json())
+          .then((data) => {
+            // const stockTableBody = document.getElementById("stock-table-body");
+            // stockTableBody.innerHTML = ""; // Clear existing rows
+
+            data.forEach((stock) => {
+              const stockRow = document.getElementById(`stock-row-${stock.symbol}`);
+              if (stockRow) {
+                // Update only the quantity and price for the specific stock row
+                const stockQuantityCell =
+                  stockRow.querySelector("#stockQuantity");
+                const stockPriceCell = stockRow.querySelector("#stockPrice");
+
+                if (stockQuantityCell && stockPriceCell) {
+                  stockQuantityCell.textContent = stock.quantity;
+                  stockPriceCell.textContent = stock.price;
+                }
+              }
+            });
+
+            const now = new Date();
+            const formattedTime = now.toLocaleString();
+            document.getElementById("last-updated-time").textContent =
+              "Last updated: " + formattedTime;
+          })
+          .catch((error) => console.error("Error fetching stock data:", error));
+      }
+
+      // Poll the backend every 10 seconds to get updated stock data
+      setInterval(fetchUpdatedStocks, 10000); // Poll every 10 seconds
+
+      window.onload = fetchUpdatedStocks; // Fetch stocks once when the page loads
+
       function buyStock(symbol, availableQuantity, price, userid) {
         // Get the row containing the button that was clicked
         const row = event.target.closest("tr");

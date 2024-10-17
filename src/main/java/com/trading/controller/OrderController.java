@@ -20,9 +20,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // @Autowired
-    // private UserHoldingsService userHoldingsService;
-
     @GetMapping("/orders")
     public String renderOrderProcessingPage(Model model, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
@@ -30,10 +27,8 @@ public class OrderController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
-
-        // List<OrderModel> orders = orderService.getUserStocksByUserId(user.getUserid());
+        
         List<UserHoldingsModel> holdings = orderService.getUserStocksByUserId(user.getUserid());
-        System.out.println("Users stocks: " + holdings);
         model.addAttribute("orders", holdings);
         model.addAttribute("user", user);
         return "orderProcessing";
@@ -47,7 +42,7 @@ public class OrderController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
-        System.out.println("Placing Buy Stocks Order..." + order.toString());
+        System.out.println("Placing Buy Stocks Order for " + user.getUserid() +  " " + order.toString());
         orderService.placeBuyOrder(order, user.getUserid());
         return "Buy order placed for " + order.getStockSymbol() + " with quantity: " + order.getQuantity();
     }
@@ -60,7 +55,7 @@ public class OrderController {
         if (user == null) {
             return "redirect:/login"; // Redirect to login if session expires
         }
-        System.out.println("Selling Stocks..." + order.toString());
+        System.out.println("Selling Stocks by" + user.getUserid() +  " " + order.toString());
         orderService.placeSellOrder(order, user.getUserid());
         return "Sell order placed for " + order.getStockSymbol();
     }
@@ -79,7 +74,6 @@ public class OrderController {
         }
 
         List<OrderModel> orderHistory = orderService.getOrderHistoryByUserId(user.getUserid());
-        System.out.println("User requesting history: " + orderHistory);
         model.addAttribute("orderHistory", orderHistory);
         model.addAttribute("user", user);
         return "userOrderHistory"; // Return order history page

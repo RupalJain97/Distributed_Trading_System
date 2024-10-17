@@ -18,14 +18,36 @@ Concurrency Management: Utilize Java’s Concurrency API, particularly thread po
 **Order Processing Microservice:**
 1. Implement the order processing logic where multiple users can buy or sell stocks concurrently. - TODO
 2. Use ExecutorService to manage a pool of threads that handle these transactions. - TODO
-3. Implement Atomic variables to safely update shared resources like stock availability. - TODO
+3. Implement synchronized threads to safely update shared resources like stock availability. - TODO
 4. Utilize thread pools to execute multiple stock trade requests in parallel, ensuring minimal latency. - TODO
+
+Solution:
+1. *synchronized blocks* ensure that shared resources like stock availability and prices are safely updated by one thread at a time.
+2. *ExecutorService* is introduced for concurrent handling of stock transactions.
+
 
 *REST Endpoints:*
 * GET /orders: To show the stocks help by the user.
 * POST /orders/sell: To place a sell order.
 * GET /orders/{userId}: To get number of stocks held by the user.
 * GET /{userID}/history: To get the user's order history
+
+
+**Stock Management Microservice:**
+1. Maintain real-time stock price data and update stock availability. - ToDo
+2. Handle concurrent access to stock data using synchronization mechanisms.  - TODO
+3. Use in-memory caching (e.g., Redis) to reduce load on the database and provide faster access to frequently requested stock data. - TODO
+
+Solutions:
+1. *Thread Safety:* The synchronized block ensures that only one thread can update the stock's price and quantity at a time.
+
+
+*REST Endpoints:*
+
+* GET /stocks: Fetch the list of all available stocks.
+* PUT /stocks/{stockId}: Update stock data when an order is processed. - TODO
+* POST /stocks/buy: To place a buy order.
+
 
 **User Management Microservice:**
 1. Handle user registration, authentication, and session management. - DONE
@@ -38,16 +60,6 @@ Concurrency Management: Utilize Java’s Concurrency API, particularly thread po
 * GET /user: To fetch user profile data.
 * GET /logout: Logout of current session
 
-**Stock Management Microservice:**
-1. Maintain real-time stock price data and update stock availability. - ToDo
-2. Handle concurrent access to stock data using synchronization mechanisms.  - TODO
-3. Use in-memory caching (e.g., Redis) to reduce load on the database and provide faster access to frequently requested stock data. - TODO
-
-*REST Endpoints:*
-
-* GET /stocks: Fetch the list of all available stocks.
-* PUT /stocks/{stockId}: Update stock data when an order is processed. - TODO
-* POST /stocks/buy: To place a buy order.
 
 
 #### Concurrency Management:
