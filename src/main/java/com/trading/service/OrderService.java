@@ -3,9 +3,12 @@ package com.trading.service;
 import com.trading.model.OrderModel;
 import com.trading.model.StockModel;
 import com.trading.model.UserHoldingsModel;
+import com.trading.model.UserModel;
 import com.trading.repository.OrderRepository;
 import com.trading.repository.StockRepository;
 import com.trading.repository.UserHoldingsRepository;
+import com.trading.repository.UserRepository;
+import com.trading.service.StockService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +30,9 @@ public class OrderService {
     private StockService stockService;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private StockRepository stockRepository;
 
     @Autowired
@@ -34,6 +40,9 @@ public class OrderService {
 
     @Autowired
     private UserHoldingsRepository userHoldingsRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private ConcurrentHashMap<String, List<OrderModel>> orderCache = new ConcurrentHashMap<>();
 
@@ -43,6 +52,10 @@ public class OrderService {
     public void placeBuyOrder(OrderModel order, String userId) {
         executorService.execute(() -> {
             synchronized (this) {
+                if (!userService.isUserExists(userId)) {
+                    throw new RuntimeException("User does not exist. Cannot place order.");
+                }
+                
                 StockModel stock = stockRepository.findBySymbol(order.getStockSymbol());
                 order.setCompanyName(stock.getCompanyName());
                 order.setOrderDate();
@@ -69,9 +82,11 @@ public class OrderService {
                     orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
 
                     // System.out.println(
-                    //         "Buy Order placed for " + order.getQuantity() + " shares of " + order.getStockSymbol());
+                    // "Buy Order placed for " + order.getQuantity() + " shares of " +
+                    // order.getStockSymbol());
+                } else {
+                    throw new RuntimeException("Cannot Buy stock.");
                 }
-
             }
         });
     }
@@ -79,6 +94,9 @@ public class OrderService {
     public void placeSellOrder(OrderModel order, String userId) {
         executorService.execute(() -> {
             synchronized (this) {
+                if (!userService.isUserExists(userId)) {
+                    throw new RuntimeException("User does not exist. Cannot place order.");
+                }
                 StockModel stock = stockRepository.findBySymbol(order.getStockSymbol());
                 order.setCompanyName(stock.getCompanyName());
                 order.setOrderDate();
@@ -86,30 +104,38 @@ public class OrderService {
                 Optional<UserHoldingsModel> userHoldingOpt = userHoldingsRepository.findByUserIdAndStockSymbol(userId,
                         order.getStockSymbol());
 
+                if (userHoldingOpt.isEmpty()) {
+                    throw new RuntimeException("Cannot sell stock user does not own.");
+                }
+
                 if (stock != null) {
                     stock.setQuantity(stock.getQuantity() + order.getQuantity());
                     stock.setPrice(stock.getPrice() - 1); // Simulate price drop after selling
                     stockService.updateStock(stock);
-                }
-                if (userHoldingOpt.isPresent()) {
-                    UserHoldingsModel userHolding = userHoldingOpt.get();
-                    int remainingQuantity = userHolding.getCurrentQuantity() - order.getQuantity();
-                    if (remainingQuantity <= 0) {
-                        userHoldingsRepository.delete(userHolding);
+
+                    if (userHoldingOpt.isPresent()) {
+                        UserHoldingsModel userHolding = userHoldingOpt.get();
+                        int remainingQuantity = userHolding.getCurrentQuantity() - order.getQuantity();
+                        if (remainingQuantity <= 0) {
+                            userHoldingsRepository.delete(userHolding);
+                        } else {
+                            userHolding.setCurrentQuantity(remainingQuantity);
+                            userHolding.setLastPrice(stockRepository.findBySymbol(order.getStockSymbol()).getPrice());
+                            userHolding.setLastOrderDate(order.getOrderDate());
+                            userHoldingsRepository.save(userHolding);
+                        }
+                        orderRepository.save(order);
+                        orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
                     } else {
-                        userHolding.setCurrentQuantity(remainingQuantity);
-                        userHolding.setLastPrice(stockRepository.findBySymbol(order.getStockSymbol()).getPrice());
-                        userHolding.setLastOrderDate(order.getOrderDate());
-                        userHoldingsRepository.save(userHolding);
+                        System.out.println("Throwing exception when user does not have stock");
+                        throw new RuntimeException("Cannot sell stock user does not own.");
                     }
-                    orderRepository.save(order);
-                    orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
                 } else {
-                    throw new RuntimeException("Cannot sell stock user does not own.");
+                    System.out.println("Throwing exception when stock does not exist");
+                    throw new RuntimeException("Stock is not available");
                 }
             }
         });
-
     }
 
     // Scheduled task that runs every minute to persist cached orders (optional)

@@ -46,7 +46,6 @@ We use Java's Concurrency API and thread pools to handle concurrent stock transa
 
 **User Management Microservice:**
 1. Handle user registration, authentication, and session management. - DONE
-2. Ensures thread-safe access to user data by using concurrent data structures and synchronized blocks where necessary. - TODO
 
 
 ### Concurrency Management:

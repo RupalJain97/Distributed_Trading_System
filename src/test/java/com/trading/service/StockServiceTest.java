@@ -6,30 +6,58 @@ import com.trading.model.StockModel;
 import com.trading.repository.StockRepository;
 
 import org.assertj.core.api.DateAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @SpringBootTest
+@ActiveProfiles("test")
+@TestMethodOrder(OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional // Start a transaction for the entire test class
+@Rollback(true) // Rollback all changes after the tests
 public class StockServiceTest {
 
     @Autowired
-    private OrderService orderService;
+    private TestOrderService orderService;
 
-    @Autowired
+    @InjectMocks
     private StockService stockService;
 
-    @Autowired
+    @Mock
     private StockRepository stockRepository;
 
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        stockService.clearStockCache(); // Clear cache before each test
+    }
+
     @Test
+    @Order(1)
     public void testConcurrentBuyAndSell() throws InterruptedException {
         System.out.println("Test with only 2 orders");
         ExecutorService executor = Executors.newFixedThreadPool(2); // Two threads for buy and sell operations
@@ -43,26 +71,14 @@ public class StockServiceTest {
 
         // Buy order
         executor.submit(() -> {
-            OrderModel buyOrder = new OrderModel();
-            buyOrder.setStockSymbol("AAPL");
-            buyOrder.setQuantity(10);
-            buyOrder.setStockPrice((float) 149.3);
-            buyOrder.setOrderPrice(1493);
-            buyOrder.setOrderType("Buy");
-            buyOrder.setUserId("emma");
+            OrderModel buyOrder = new OrderModel("emma", "AAPL", 10, "Apple", 149.3f, null, 1493f, "Buy");
             System.out.println("Attempting to buy 10 shares of AAPL... " + dtf.format(LocalDateTime.now()));
             orderService.placeBuyOrder(buyOrder, "emma");
         });
 
         // Sell order
         executor.submit(() -> {
-            OrderModel sellOrder = new OrderModel();
-            sellOrder.setStockSymbol("GOOGL");
-            sellOrder.setQuantity(5);
-            sellOrder.setStockPrice((float) 2801.5);
-            sellOrder.setOrderPrice((float) 14007.5);
-            sellOrder.setOrderType("Sell");
-            sellOrder.setUserId("jainrupal");
+            OrderModel sellOrder = new OrderModel("jainrupal", "GOOGL", 5, "Google", 2801.5f, null, 14007.5f, "Sell");
             System.out.println("Attempting to sell 5 shares of GOOGL... " + dtf.format(LocalDateTime.now()) );
             orderService.placeSellOrder(sellOrder, "jainrupal");
         });
@@ -80,6 +96,7 @@ public class StockServiceTest {
     }
 
     @Test
+    @Order(2)
     public void testConcurrentBuyAndSellBulk() throws InterruptedException {
         System.out.println("Test with only 15 orders");
         ExecutorService executor = Executors.newFixedThreadPool(10); // Two threads for buy and sell operations
@@ -92,34 +109,21 @@ public class StockServiceTest {
         printStockQuantity("GOOGL");
 
         for (int i = 0; i < 15; i++) {
-            final int requestId = i + 1; // To differentiate between requests
-    
-            // Half the requests will be buy orders, the rest will be sell orders
+            final int requestId = i + 1;
+
             if (i % 2 == 0) {
                 executor.submit(() -> {
-                    OrderModel buyOrder = new OrderModel();
-                    buyOrder.setStockSymbol("AAPL");
-                    buyOrder.setQuantity(10);
-                    buyOrder.setStockPrice((float) 149.3);
-                    buyOrder.setOrderPrice(1493);
-                    buyOrder.setOrderType("Buy");
-                    buyOrder.setUserId("emma");
+                    OrderModel buyOrder = new OrderModel("emma", "AAPL", 10, "Apple", 149.3f, null, 1493f, "Buy");
                     System.out.println("[" + dtf.format(LocalDateTime.now()) + "] Thread-" + Thread.currentThread().getName() +
                         " : Request " + requestId + ": Attempting to buy 10 shares of AAPL...");
                     orderService.placeBuyOrder(buyOrder, "emma");
                 });
             } else {
                 executor.submit(() -> {
-                    OrderModel sellOrder = new OrderModel();
-                    sellOrder.setStockSymbol("GOOGL");
-                    sellOrder.setQuantity(5);
-                    sellOrder.setStockPrice((float) 2801.5);
-                    sellOrder.setOrderPrice((float) 14007.5);
-                    sellOrder.setOrderType("Buy");
-                    sellOrder.setUserId("jainrupal");
+                    OrderModel sellOrder = new OrderModel("jainrupal", "GOOGL", 5, "Google", 2801.5f, null, 14007.5f, "Sell");
                     System.out.println("[" + dtf.format(LocalDateTime.now()) + "] Thread-" + Thread.currentThread().getName() +
-                        " : Request " + requestId + ": Attempting to buy 5 shares of GOOGL...");
-                    orderService.placeBuyOrder(sellOrder, "jainrupal");
+                        " : Request " + requestId + ": Attempting to sell 5 shares of GOOGL...");
+                    orderService.placeSellOrder(sellOrder, "jainrupal");
                 });
             }
         }
@@ -147,5 +151,61 @@ public class StockServiceTest {
         } else {
             System.out.println("Stock: " + stockSymbol + " not found in the repository.");
         }
+    }
+
+
+    @Test
+    @Order(3)
+    public void testFindStockBySymbolFromCache() {
+        // Given
+        StockModel cachedStock = new StockModel("BIDU", "Baidu Inc.", 2000, 190.85);
+
+        stockService.updateStock(cachedStock);
+        System.out.println(stockService.findStockBySymbol("BIDU"));
+
+        // When
+        StockModel result = stockService.findStockBySymbol("BIDU");
+        System.out.println("Cache Result: " + result.getSymbol() + " " + result.getQuantity());
+
+        // Then
+        assertEquals("BIDU", result.getSymbol()); 
+        assertEquals(2000, result.getQuantity());
+        System.out.println("Stock retrieved from cache...");
+    }
+
+    @Test
+    @Order(4)
+    public void testFindStockBySymbolFromDB() {
+        // Given
+        StockModel dbStock = new StockModel("BIDU", "Baidu Inc.", 2000, 190.85);
+        when(stockRepository.findBySymbol("BIDU")).thenReturn(dbStock);
+
+        // When
+        StockModel result = stockService.findStockBySymbol("BIDU");
+        System.out.println("DB Result: " + result.getSymbol() + " " + result.getQuantity());
+
+        // Then
+        assertEquals("BIDU", result.getSymbol()); // Verify the symbol
+        assertEquals(2000, result.getQuantity()); // Verify the quantity
+        verify(stockRepository, times(1)).findBySymbol("BIDU");
+        System.out.println("Stock retrieved from DB...");
+    }
+
+    @Test
+    @Order(5)
+    public void testUpdateStock() {
+        // Given
+        StockModel existingStock = new StockModel("AFRM", "Affirm Holdings Inc.", 700, 100.25);
+        when(stockRepository.findBySymbol("AFRM")).thenReturn(existingStock); 
+        
+        StockModel updatedStock = new StockModel("AFRM", "Affirm Holdings Inc.", 1000, 100.25);
+
+        // When
+        stockService.updateStock(updatedStock);
+
+        // Then
+        verify(stockRepository, times(1)).save(any(StockModel.class)); // Verify save call
+        assertEquals(updatedStock.getQuantity(), stockRepository.findBySymbol("AFRM").getQuantity());
+        System.out.println("Stock updated successfully...");
     }
 }

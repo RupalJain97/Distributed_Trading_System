@@ -1,0 +1,116 @@
+For a comprehensive test suite for your **Distributed Stock Trading System**, you should include a variety of test types to ensure that all aspects of your system are working correctly. Here's a breakdown of important test cases you should consider:
+
+### 1. **Unit Tests**
+Unit tests focus on testing individual components, usually services or methods, to ensure they function as expected in isolation.
+
+#### Suggested Unit Tests:
+- **OrderService Tests**:
+  - Test for placing a buy order (ensure stock quantity is reduced and order is recorded).
+  - Test for placing a sell order (ensure stock quantity is increased and order is recorded).
+  - Test behavior when a user tries to sell a stock they do not own.
+  - Test the cache update logic (whether orders are batched and written to the DB every minute).
+  
+- **StockService Tests**:
+  - Test retrieving stock information from the cache and DB.
+  - Test updating stock quantities and prices.
+  - Test clearing the stock cache and checking if it refreshes correctly after expiry.
+
+- **UserService Tests**:
+  - Test user registration and ensure that all necessary fields are filled.
+  - Test login functionality, including correct password validation and session management.
+
+#### Edge Case Unit Tests:
+- Test placing a buy order for more stocks than are available.
+- Test placing a sell order for more stocks than the user owns.
+- Test placing an order for a non-existent stock.
+- Test behavior if the database is unreachable or returns unexpected values.
+
+### 2. **Integration Tests**
+Integration tests ensure that different parts of the system work together as expected. These tests focus on the interaction between services, controllers, and the database.
+
+#### Suggested Integration Tests:
+- **End-to-End Buy/Sell Order Process**:
+  - Place a buy order and verify if the stock is updated in both the cache and database.
+  - Place a sell order and verify the stock updates accordingly, including changes in the user's stock holdings.
+  
+- **Cache Consistency**:
+  - Test that the stock cache is updated correctly after an order is placed.
+  - Ensure that the order cache is flushed to the database correctly and in the right time intervals (1 minute, as per the design).
+
+- **Concurrency Tests**:
+  - Test concurrent buy and sell orders to ensure data integrity (e.g., two users buying the same stock at the same time).
+  - Simulate high-load scenarios with a large number of simultaneous buy/sell requests to ensure that thread pools are managing the requests effectively and stock data remains consistent.
+
+- **Session Management**:
+  - Test login functionality with multiple users logging in and placing orders at the same time.
+  - Ensure that user session data (e.g., logged-in state, user ID) is handled correctly.
+
+### 3. **Performance Tests**
+Performance tests help measure how well the system performs under different conditions. Since this is a distributed trading system, it's crucial to understand how it behaves under load.
+
+#### Suggested Performance Tests:
+- **Thread Pool Capacity**:
+  - Test performance with various thread pool sizes (e.g., 5, 10, 20 threads) and see how well the system handles increasing numbers of requests.
+  
+- **High Concurrency Load**:
+  - Run tests that simulate many users placing buy and sell orders simultaneously (e.g., 50-100 users) and measure response times, thread utilization, and whether there is any thread starvation or deadlock.
+
+- **Cache Performance**:
+  - Measure the performance difference between serving requests from the cache vs. the database.
+  - Test how long it takes for the cache to refill after being cleared (scheduled cache eviction).
+
+### 4. **Database Integration Tests**
+Database integration tests ensure that all database operations—such as queries, updates, and caching—are performed correctly.
+
+#### Suggested Database Tests:
+- **Order History Retrieval**:
+  - Test retrieving order history for a user from the database.
+  - Ensure the query for fetching distinct companies by user ID works correctly.
+
+- **Data Integrity**:
+  - Test that data is written correctly to the stock and order tables, even under high load.
+  - Test for consistency between the cache and the database (i.e., after updating the cache, the database should reflect the correct state after the scheduled flush).
+
+### 5. **Frontend/Backend Integration Tests**
+Ensure the frontend works correctly with the backend REST APIs and renders the correct data dynamically.
+
+#### Suggested Frontend Tests:
+- **Stock Dashboard**:
+  - Ensure the stock dashboard correctly fetches data from the `/stocks` endpoint and updates dynamically.
+  - Test the polling mechanism to ensure the stock table is updated in real-time without affecting ongoing user actions (e.g., placing orders).
+
+- **Order Placement**:
+  - Simulate a user placing a buy/sell order through the frontend and verify that the correct data is sent to the backend and reflected in the system.
+
+### 6. **Security Tests**
+Ensure that the system is secure and doesn't expose sensitive data or allow unauthorized actions.
+
+#### Suggested Security Tests:
+- **Authentication and Authorization**:
+  - Test that unauthorized users cannot place buy/sell orders.
+  - Test session expiry and user logout scenarios to ensure no unauthorized access.
+
+- **SQL Injection Protection**:
+  - Attempt SQL injection attacks on endpoints that interact with the database to ensure they are handled properly.
+
+### 7. **Stress Tests**
+Stress tests focus on pushing the system beyond its normal operational capacity to find breaking points.
+
+#### Suggested Stress Tests:
+- **High Volume Orders**:
+  - Simulate thousands of buy/sell orders and measure how well the system can handle the load.
+  
+- **Stock Lookup**:
+  - Stress test the stock lookup service by simulating many users checking stock availability simultaneously.
+
+### 8. **Error Handling Tests**
+Test how the system handles various error conditions to ensure that it fails gracefully.
+
+#### Suggested Error Handling Tests:
+- **Database Unavailability**:
+  - Simulate a database failure and check how the application responds to ensure there are proper retries or error responses.
+
+- **Cache Eviction**:
+  - Simulate cache eviction and ensure that the system correctly reloads data from the database.
+
+By implementing these tests, you will ensure that your distributed trading system is robust, performant, and scalable, even under concurrent loads.

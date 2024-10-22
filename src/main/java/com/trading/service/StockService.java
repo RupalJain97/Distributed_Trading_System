@@ -34,12 +34,14 @@ public class StockService {
     public StockModel findStockBySymbol(String stockSymbol) {
         StockModel cachedStock = stockCache.get(stockSymbol);
         if (cachedStock != null) {
+            System.out.println("Stock Found in cache...");
             return cachedStock; // Return the cached stock if found
         }
 
         // If not found in cache, retrieve it from the database
         StockModel stockFromDb = stockRepository.findBySymbol(stockSymbol);
-
+        System.out.println("Stock Found in DB..." + stockFromDb);
+        
         // Cache the stock for future requests
         if (stockFromDb != null) {
             stockCache.put(stockSymbol, stockFromDb);
@@ -58,6 +60,12 @@ public class StockService {
 
                 // Also update the cache after modifying the stock
                 stockCache.put(stock.getSymbol(), existingStock);
+
+                System.out.println("Stock Updated..." + stockCache.get(stock.getSymbol()));
+            } else {
+                // Add new stock to the cache if not found in DB
+                stockCache.put(stock.getSymbol(), stock);
+                System.out.println("New stock added to cache: " + stock.getSymbol() + " " + stock.getQuantity());
             }
         }
     }
