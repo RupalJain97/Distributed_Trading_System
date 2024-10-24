@@ -133,3 +133,28 @@ The TradingSystem class likely acts as a utility or central service to coordinat
 ### Total lines of code:
 
 946
+
+
+## System Performance 
+
+
+To achieve detailed performance metrics for your multithreaded stock trading application, you can focus on gathering the following metrics:
+
+1. Thread Pool Metrics
+* Total number of threads in your application.
+* Active threads specific to the order processing.
+* Queue size (if using a thread pool with a queue).
+* Threads waiting for tasks.
+* Rejected tasks count.
+
+2. CPU Metrics
+* CPU load for the JVM.
+* CPU load for the system.
+
+3. Memory Usage
+* JVM heap memory usage.
+* Non-heap memory usage.
+
+4. Throughput and Latency
+* Number of orders processed per second (throughput).
+* Time taken to complete an order (latency).

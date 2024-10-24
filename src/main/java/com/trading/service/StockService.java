@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -20,28 +21,50 @@ public class StockService {
     private StockRepository stockRepository;
 
     public List<StockModel> getAvailableStocks() {
-        if (stockCache.isEmpty()) { // Cache is empty, load from DB and populate the cache
-            List<StockModel> stocksFromDb = stockRepository.findAll();
-            for (StockModel stock : stocksFromDb) {
-                stockCache.put(stock.getSymbol(), stock);
+        // if (stockCache.isEmpty()) { // Cache is empty, load from DB and populate the cache
+        //     List<StockModel> stocksFromDb = stockRepository.findAll();
+        //     for (StockModel stock : stocksFromDb) {
+        //         stockCache.put(stock.getSymbol(), stock);
+        //     }
+        //     return stocksFromDb;
+        // } else {
+        //     return List.copyOf(stockCache.values()); // Return cached stocks
+        // }
+
+        List<String> allSymbols = stockRepository.findAllSymbols();
+        List<StockModel> stocksToFetch = new ArrayList<>();
+        List<StockModel> availableStocks = new ArrayList<>();
+
+        // Check each symbol to see if it's in the cache
+        for (String symbol : allSymbols) {
+            StockModel cachedStock = stockCache.get(symbol);
+            if (cachedStock != null) {
+                // If found in cache, add to the available stocks list
+                availableStocks.add(cachedStock);
+            } else {
+                // If not found in cache, add symbol to fetch list
+                stocksToFetch.add(stockRepository.findBySymbol(symbol));
             }
-            return stocksFromDb;
-        } else {
-            return List.copyOf(stockCache.values()); // Return cached stocks
         }
+
+        // Add newly fetched stocks to the cache and available stocks list
+        for (StockModel stock : stocksToFetch) {
+            stockCache.put(stock.getSymbol(), stock);
+            availableStocks.add(stock);
+        }
+
+        return availableStocks;
     }
 
     public StockModel findStockBySymbol(String stockSymbol) {
         StockModel cachedStock = stockCache.get(stockSymbol);
         if (cachedStock != null) {
-            System.out.println("Stock Found in cache...");
             return cachedStock; // Return the cached stock if found
         }
 
         // If not found in cache, retrieve it from the database
         StockModel stockFromDb = stockRepository.findBySymbol(stockSymbol);
-        System.out.println("Stock Found in DB..." + stockFromDb);
-        
+
         // Cache the stock for future requests
         if (stockFromDb != null) {
             stockCache.put(stockSymbol, stockFromDb);
@@ -61,11 +84,9 @@ public class StockService {
                 // Also update the cache after modifying the stock
                 stockCache.put(stock.getSymbol(), existingStock);
 
-                System.out.println("Stock Updated..." + stockCache.get(stock.getSymbol()));
             } else {
                 // Add new stock to the cache if not found in DB
                 stockCache.put(stock.getSymbol(), stock);
-                System.out.println("New stock added to cache: " + stock.getSymbol() + " " + stock.getQuantity());
             }
         }
     }

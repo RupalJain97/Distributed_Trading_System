@@ -4,14 +4,17 @@ import com.trading.model.OrderModel;
 import com.trading.model.UserHoldingsModel;
 import com.trading.model.UserModel;
 import com.trading.service.OrderService;
+import com.trading.service.PerformanceService;
 import com.trading.service.StockService;
 // import com.trading.service.UserHoldingsService;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +23,9 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private PerformanceService performanceService;
+    
     @GetMapping("/orders")
     public String renderOrderProcessingPage(Model model, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
@@ -39,10 +45,10 @@ public class OrderController {
     public String placeBuyOrder(@RequestBody OrderModel order, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
 
-        if (user == null) {
-            return "redirect:/login"; // Redirect to login if session expires
-        }
-        System.out.println("Placing Buy Stocks Order for " + user.getUserid() +  " " + order.toString());
+        // if (user == null) {
+        //     return "redirect:/login"; // Redirect to login if session expires
+        // }
+        
         orderService.placeBuyOrder(order, user.getUserid());
         return "Buy order placed for " + order.getStockSymbol() + " with quantity: " + order.getQuantity();
     }
@@ -52,10 +58,10 @@ public class OrderController {
     public String placeSellOrder(@RequestBody OrderModel order, HttpSession session) {
         UserModel user = (UserModel) session.getAttribute("user");
 
-        if (user == null) {
-            return "redirect:/login"; // Redirect to login if session expires
-        }
-        System.out.println("Selling Stocks by" + user.getUserid() +  " " + order.toString());
+        // if (user == null) {
+        //     return "redirect:/login"; // Redirect to login if session expires
+        // }
+        
         orderService.placeSellOrder(order, user.getUserid());
         return "Sell order placed for " + order.getStockSymbol();
     }

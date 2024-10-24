@@ -11,15 +11,26 @@ import com.trading.repository.UserRepository;
 import com.trading.service.StockService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+
+import jakarta.websocket.ContainerProvider;
+import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
+
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OrderService {
 
     @Autowired
+    @Lazy
     private StockService stockService;
 
     @Autowired
@@ -44,10 +56,26 @@ public class OrderService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PerformanceService performanceService;
+
     private ConcurrentHashMap<String, List<OrderModel>> orderCache = new ConcurrentHashMap<>();
 
     // ExecutorService for managing threads
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
+
+    public void notifyDashboard(String message) {
+        try {
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            URI uri = new URI("ws://localhost:8081/ws/updates");
+            Session session = container.connectToServer(new SimpleWebSocketClient(message), uri);
+            session.getAsyncRemote().sendText(message);
+            session.close();
+            System.out.println("Message sent to dashboard: " + message);
+        } catch (Exception e) {
+            System.err.println("WebSocket error: " + e.getMessage());
+        }
+    }
 
     public void placeBuyOrder(OrderModel order, String userId) {
         executorService.execute(() -> {
@@ -55,7 +83,7 @@ public class OrderService {
                 if (!userService.isUserExists(userId)) {
                     throw new RuntimeException("User does not exist. Cannot place order.");
                 }
-                
+
                 StockModel stock = stockRepository.findBySymbol(order.getStockSymbol());
                 order.setCompanyName(stock.getCompanyName());
                 order.setOrderDate();
@@ -81,9 +109,11 @@ public class OrderService {
                     orderRepository.save(order);
                     orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
 
-                    // System.out.println(
-                    // "Buy Order placed for " + order.getQuantity() + " shares of " +
-                    // order.getStockSymbol());
+                    // Collect performance metrics
+                    String metrics = performanceService.getPerformanceMetrics();
+                    System.out.println("Message: " + metrics);
+                    notifyDashboard(metrics);
+
                 } else {
                     throw new RuntimeException("Cannot Buy stock.");
                 }
@@ -126,19 +156,22 @@ public class OrderService {
                         }
                         orderRepository.save(order);
                         orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
+
+                        String metrics = performanceService.getPerformanceMetrics();
+                        System.out.println("Message: " + metrics);
+                        notifyDashboard(metrics);
+
                     } else {
-                        System.out.println("Throwing exception when user does not have stock");
                         throw new RuntimeException("Cannot sell stock user does not own.");
                     }
                 } else {
-                    System.out.println("Throwing exception when stock does not exist");
                     throw new RuntimeException("Stock is not available");
                 }
             }
         });
     }
 
-    // Scheduled task that runs every minute to persist cached orders (optional)
+    // Scheduled task that runs every minute to persist cached orders
     @Scheduled(fixedRate = 60000) // 1 minute
     public void updateOrderHistory() {
         for (Entry<String, List<OrderModel>> entry : orderCache.entrySet()) {

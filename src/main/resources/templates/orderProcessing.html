@@ -5,6 +5,7 @@
     <title>Order Dashboard</title>
 
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <script src="/js/metrics.js"></script>
   </head>
   <body>
     <nav class="navbar">
@@ -57,18 +58,14 @@
     </div>
 
     <script>
-      window.onload = function () {
-        const userId = document.getElementById("userID").textContent;
-        fetchOrderStatus(userId);
-      };
+      const userId = document.getElementById("userID").textContent;
 
       function sellStock(symbol, userAvailableQuantity, price, userId) {
         const row = event.target.closest("tr");
 
         if (!row.querySelector(".sell-quantity")) {
           const quantityCell = document.createElement("td");
-          quantityCell.innerHTML =
-            `<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="${userAvailableQuantity}">`;
+          quantityCell.innerHTML = `<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="${userAvailableQuantity}">`;
           row.appendChild(quantityCell);
 
           const finalPriceCell = document.createElement("td");
@@ -77,13 +74,12 @@
           row.appendChild(finalPriceCell);
 
           const submitButtonCell = document.createElement("td");
-          submitButtonCell.innerHTML =
-            `<button class="submit-btn disabled-button" disabled onclick="submitSellOrder('${symbol}', ${price}, '${userId}')">Submit</button>`;
+          submitButtonCell.innerHTML = `<button class="submit-btn disabled-button" disabled onclick="submitSellOrder('${symbol}', ${price}, '${userId}')">Submit</button>`;
           row.appendChild(submitButtonCell);
 
           const quantityInput = row.querySelector(".sell-quantity");
           const submitButton = row.querySelector(".submit-btn");
-          
+
           quantityInput.addEventListener("input", function () {
             const quantity = parseInt(quantityInput.value) || 0;
             const finalPrice = quantity * price;
@@ -117,7 +113,7 @@
             stockPrice: price,
             orderPrice: finalPrice,
             orderType: "Sell",
-            userId: userId
+            userId: userId,
           };
 
           fetch("/orders/sell", {
@@ -129,7 +125,22 @@
           })
             .then((response) => response.text())
             .then((data) => {
-              alert(data); // Display response from the backend
+              alert("Order Sold Successfully"); // Display response from the backend
+
+              // Remove child elements safely
+              const sellQuantityInput = row.querySelector(".sell-quantity");
+              const finalPriceCell = row.querySelector(".final-price");
+              const submitButton = row.querySelector(".submit-btn");
+
+              if (sellQuantityInput) {
+                row.removeChild(sellQuantityInput.parentNode); // Remove the parent <td>
+              }
+              if (finalPriceCell) {
+                row.removeChild(finalPriceCell); // Remove final price cell
+              }
+              if (submitButton) {
+                row.removeChild(submitButton.parentNode); // Remove the parent <td>
+              }
               location.reload(); // Reload the page after sell
             })
             .catch((error) => {
@@ -140,18 +151,6 @@
         }
       }
 
-      // Fetch order count
-      function fetchOrderStatus(userId) {
-        console.log(" User requesting: ", userId);
-        fetch(`/orders/${userId}`)
-          .then((response) => response.text())
-          .then(
-            (data) => (document.getElementById("orderCount").textContent = data)
-          );
-      }
-
-      // Call the order status function periodically to update
-      // setInterval(fetchOrderStatus, 100); // Update every 0.1 seconds
     </script>
   </body>
 </html>

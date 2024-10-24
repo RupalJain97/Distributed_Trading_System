@@ -5,6 +5,7 @@
     <title>Stock Dashboard</title>
 
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <script src="/js/metrics.js"></script>
   </head>
   <body>
     <nav class="navbar">
@@ -36,7 +37,10 @@
           </tr>
         </thead>
         <tbody id="stock-table-body">
-          <tr th:each="stock : ${stocks}" th:id="${'stock-row-' + stock.symbol}">
+          <tr
+            th:each="stock : ${stocks}"
+            th:id="${'stock-row-' + stock.symbol}"
+          >
             <td id="symbol" th:text="${stock.symbol}">Stock Symbol</td>
             <td id="companyName" th:text="${stock.companyName}">
               Company Name
@@ -69,7 +73,9 @@
             // stockTableBody.innerHTML = ""; // Clear existing rows
 
             data.forEach((stock) => {
-              const stockRow = document.getElementById(`stock-row-${stock.symbol}`);
+              const stockRow = document.getElementById(
+                `stock-row-${stock.symbol}`
+              );
               if (stockRow) {
                 // Update only the quantity and price for the specific stock row
                 const stockQuantityCell =
@@ -174,8 +180,23 @@
           })
             .then((response) => response.text())
             .then((data) => {
-              alert(data); // Display response from the backend
-              location.reload(); // Reload the page after sell
+              alert("Order placed successfully!");
+
+              // Remove child elements safely
+              const buyQuantityInput = row.querySelector(".buy-quantity");
+              const finalPriceCell = row.querySelector(".final-price");
+              const submitButton = row.querySelector(".submit-btn");
+
+              if (buyQuantityInput) {
+                row.removeChild(buyQuantityInput.parentNode); 
+              }
+              if (finalPriceCell) {
+                row.removeChild(finalPriceCell); 
+              }
+              if (submitButton) {
+                row.removeChild(submitButton.parentNode); 
+              }
+
             })
             .catch((error) => {
               console.error("Error:", error);
@@ -184,6 +205,7 @@
           alert("Please enter a valid quantity");
         }
       }
+
     </script>
   </body>
 </html>
