@@ -14,16 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
-
-import reactor.core.publisher.Mono;
 
 import java.util.Optional;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,19 +56,6 @@ public class OrderService {
     // ExecutorService for managing threads
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    public void notifyDashboard(String message) {
-        try {
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            URI uri = new URI("ws://localhost:8081/ws/updates");
-            Session session = container.connectToServer(new SimpleWebSocketClient(message), uri);
-            session.getAsyncRemote().sendText(message);
-            session.close();
-            System.out.println("Message sent to dashboard: " + message);
-        } catch (Exception e) {
-            System.err.println("WebSocket error: " + e.getMessage());
-        }
-    }
-
     public void placeBuyOrder(OrderModel order, String userId) {
         executorService.execute(() -> {
             synchronized (this) {
@@ -112,7 +91,6 @@ public class OrderService {
                     // Collect performance metrics
                     String metrics = performanceService.getPerformanceMetrics();
                     System.out.println("Message: " + metrics);
-                    notifyDashboard(metrics);
 
                 } else {
                     throw new RuntimeException("Cannot Buy stock.");
@@ -159,7 +137,6 @@ public class OrderService {
 
                         String metrics = performanceService.getPerformanceMetrics();
                         System.out.println("Message: " + metrics);
-                        notifyDashboard(metrics);
 
                     } else {
                         throw new RuntimeException("Cannot sell stock user does not own.");

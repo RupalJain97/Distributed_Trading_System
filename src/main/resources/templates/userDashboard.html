@@ -105,42 +105,6 @@
         });
       });
 
-      function connectWebSocket() {
-        const socket = new WebSocket("ws://localhost:8081/ws/updates");
-
-        socket.onopen = function () {
-          console.log("Connected to WebSocket");
-        };
-
-        socket.onmessage = function (event) {
-          try {
-            const data = JSON.parse(event.data);
-            console.log("Received data: ", data);
-            updateMetricsFromResponse(data);
-          } catch (error) {
-            console.error("Error parsing WebSocket data: ", error);
-          }
-        };
-
-        socket.onerror = function (error) {
-          console.error("WebSocket error: ", error);
-        };
-
-        socket.onclose = function (event) {
-          console.log(
-            `WebSocket closed: Code=${event.code}, Reason=${event.reason}`
-          );
-          // Reconnect after 5 seconds if closed unexpectedly
-          if (event.code !== 1000) {
-            // 1000 means normal closure
-            setTimeout(connectWebSocket, 5000);
-          }
-        };
-      }
-
-      // Initialize WebSocket connection
-      connectWebSocket();
-
       function updateMetricsFromResponse(data) {
         if (window.threadBarChart) {
           console.log("updating threads chart");
