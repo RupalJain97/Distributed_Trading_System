@@ -4,7 +4,6 @@ import com.trading.model.OrderModel;
 import com.trading.model.UserHoldingsModel;
 import com.trading.model.UserModel;
 import com.trading.service.OrderService;
-import com.trading.service.PerformanceService;
 import com.trading.service.StockService;
 // import com.trading.service.UserHoldingsService;
 import org.springframework.ui.Model;
@@ -22,9 +21,6 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
     @Autowired
     private OrderService orderService;
-
-    @Autowired
-    private PerformanceService performanceService;
     
     @GetMapping("/orders")
     public String renderOrderProcessingPage(Model model, HttpSession session) {

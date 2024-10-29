@@ -2,7 +2,6 @@ package com.trading.controller;
 
 import com.trading.model.UserModel;
 import com.trading.service.UserService;
-import com.trading.service.PerformanceService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -22,9 +21,6 @@ import org.slf4j.LoggerFactory;
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private PerformanceService performanceService;
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -78,12 +74,5 @@ public class UserController {
         model.addAttribute("user", user);
         return "userDashboard"; // Return the dashboard HTML page
     }
-
-    // @GetMapping("/api/performance-metrics")
-    // @ResponseBody
-    // public ResponseEntity<Map<String, Object>> getPerformanceMetrics() {
-    //     String metrics = performanceService.getPerformanceMetrics();
-    //     return ResponseEntity.ok(metrics);
-    // }
 
 }
