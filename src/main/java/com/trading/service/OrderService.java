@@ -79,16 +79,16 @@ public class OrderService {
             System.out.println("Received performance metrics via gRPC: " + response);
 
             // Convert gRPC response to PerformanceMetrics
-            // PerformanceMetrics metrics = new PerformanceMetrics();
-            // metrics.setTotalThreads(response.getTotalThreads());
-            // metrics.setRunningThreads(response.getRunningThreads());
-            // metrics.setPeakThreads(response.getPeakThreads());
-            // metrics.setHeapMemoryUsage(response.getHeapMemoryUsage());
-            // metrics.setNonHeapMemoryUsage(response.getNonHeapMemoryUsage());
-            // metrics.setSystemLoad(response.getSystemLoad());
+            PerformanceMetrics metrics = new PerformanceMetrics();
+            metrics.setTotalThreads(response.getTotalThreads());
+            metrics.setRunningThreads(response.getRunningThreads());
+            metrics.setPeakThreads(response.getPeakThreads());
+            metrics.setHeapMemoryUsage(response.getHeapMemoryUsage());
+            metrics.setNonHeapMemoryUsage(response.getNonHeapMemoryUsage());
+            metrics.setSystemLoad(response.getSystemLoad());
 
-            // // Send order-triggered metrics via SSE
-            // performanceController.pushOrderMetrics(metrics);
+            // Send order-triggered metrics via SSE
+            performanceController.broadcastMetrics(metrics);
 
         } catch (Exception e) {
             System.err.println("Error sending performance metrics: " + e.getMessage());

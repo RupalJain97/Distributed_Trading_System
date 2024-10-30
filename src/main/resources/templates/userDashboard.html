@@ -114,18 +114,21 @@
             const data = JSON.parse(event.data);
             console.log("Received performance data via SSE:", data);
             updateMetricsFromResponse(data);
-            reconnectDelay = 1000; // Reset delay on successful message
+            // reconnectDelay = 1000; // Reset delay on successful message
           };
 
           eventSource.onerror = function (error) {
             console.error("Error receiving SSE data:", error);
             eventSource.close();
 
+            // Reconnect after a delay
+            setTimeout(connectEventSource, 500);
+
             // Reconnect with exponential backoff
-            setTimeout(() => {
-              reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay); // Double delay, capped at max
-              connectSSE();
-            }, reconnectDelay);
+            // setTimeout(() => {
+            //   reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay); // Double delay, capped at max
+            //   connectSSE();
+            // }, reconnectDelay);
           };
         }
 
