@@ -104,6 +104,6 @@ public class PerformanceController {
             } catch (Exception e) {
                 System.err.println("Error sending periodic SSE: " + e.getMessage());
             }
-        }, 0, 20, TimeUnit.SECONDS); // Update every 5 minutes
+        }, 0, 5, TimeUnit.MINUTES); // Update every 5 minutes
     }
 }
