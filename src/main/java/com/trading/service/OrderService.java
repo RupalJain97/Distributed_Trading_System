@@ -1,29 +1,24 @@
 package com.trading.service;
 
-import com.trading.model.OrderModel;
-import com.trading.model.StockModel;
-import com.trading.model.UserHoldingsModel;
-import com.trading.model.UserModel;
-import com.trading.repository.OrderRepository;
-import com.trading.repository.StockRepository;
-import com.trading.repository.UserHoldingsRepository;
-import com.trading.repository.UserRepository;
-import com.trading.service.StockService;
+import com.trading.controller.PerformanceController;
+import com.trading.model.*;
+import com.trading.repository.*;
+import com.trading.service.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import jakarta.websocket.ContainerProvider;
-import jakarta.websocket.Session;
-import jakarta.websocket.WebSocketContainer;
-
-import reactor.core.publisher.Mono;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import com.trading.proto.PerformanceServiceGrpc;
+import com.trading.proto.Performance.PerformanceRequest;
+import com.trading.proto.Performance.PerformanceResponse;
 
 import java.util.Optional;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,23 +52,46 @@ public class OrderService {
     private UserRepository userRepository;
 
     @Autowired
-    private PerformanceService performanceService;
+    private PerformanceController performanceController; // Use PerformanceController to access the SSE emitter
 
     private ConcurrentHashMap<String, List<OrderModel>> orderCache = new ConcurrentHashMap<>();
 
     // ExecutorService for managing threads
     private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 
-    public void notifyDashboard(String message) {
+    private final ManagedChannel channel;
+    private final PerformanceServiceGrpc.PerformanceServiceBlockingStub performanceStub;
+
+    public OrderService() {
+        this.channel = ManagedChannelBuilder.forAddress("localhost", 9090)
+                .usePlaintext()
+                .build();
+        this.performanceStub = PerformanceServiceGrpc.newBlockingStub(channel);
+    }
+
+    public void sendPerformanceMetrics() {
+        PerformanceRequest request = PerformanceRequest.newBuilder()
+                .setServiceName("OrderService")
+                .build();
+
         try {
-            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-            URI uri = new URI("ws://localhost:8081/ws/updates");
-            Session session = container.connectToServer(new SimpleWebSocketClient(message), uri);
-            session.getAsyncRemote().sendText(message);
-            session.close();
-            System.out.println("Message sent to dashboard: " + message);
+            PerformanceResponse response = performanceStub.getPerformance(request);
+            System.out.println("Received performance metrics via gRPC: " + response);
+
+            // Convert gRPC response to PerformanceMetrics
+            PerformanceMetrics metrics = new PerformanceMetrics();
+            metrics.setTotalThreads(response.getTotalThreads());
+            metrics.setRunningThreads(response.getRunningThreads());
+            metrics.setPeakThreads(response.getPeakThreads());
+            metrics.setHeapMemoryUsage(response.getHeapMemoryUsage());
+            metrics.setNonHeapMemoryUsage(response.getNonHeapMemoryUsage());
+            metrics.setSystemLoad(response.getSystemLoad());
+
+            // Send order-triggered metrics via SSE
+            performanceController.broadcastMetrics(metrics);
+
         } catch (Exception e) {
-            System.err.println("WebSocket error: " + e.getMessage());
+            System.err.println("Error sending performance metrics: " + e.getMessage());
         }
     }
 
@@ -109,10 +127,8 @@ public class OrderService {
                     orderRepository.save(order);
                     orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
 
-                    // Collect performance metrics
-                    String metrics = performanceService.getPerformanceMetrics();
-                    System.out.println("Message: " + metrics);
-                    notifyDashboard(metrics);
+                    // Trigger performance metrics
+                    sendPerformanceMetrics();
 
                 } else {
                     throw new RuntimeException("Cannot Buy stock.");
@@ -157,9 +173,8 @@ public class OrderService {
                         orderRepository.save(order);
                         orderCache.computeIfAbsent(userId, k -> new ArrayList<>()).add(order);
 
-                        String metrics = performanceService.getPerformanceMetrics();
-                        System.out.println("Message: " + metrics);
-                        notifyDashboard(metrics);
+                        // Trigger performance metrics
+                        sendPerformanceMetrics();
 
                     } else {
                         throw new RuntimeException("Cannot sell stock user does not own.");

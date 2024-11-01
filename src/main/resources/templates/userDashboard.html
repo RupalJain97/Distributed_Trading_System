@@ -8,7 +8,8 @@
     <link rel="stylesheet" type="text/css" href="/css/style.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/js/metrics.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/protobufjs/7.2.2/protobuf.min.js"></script>
   </head>
   <body>
     <nav class="navbar">
@@ -103,51 +104,37 @@
             ],
           },
         });
-      });
 
-      function connectWebSocket() {
-        const socket = new WebSocket("ws://localhost:8081/ws/updates");
+        function connectEventSource() {
+          // Set up an EventSource to listen for SSE updates
+          console.log("Connecting to SSE...");
+          const eventSource = new EventSource("/dashboard/sse");
 
-        socket.onopen = function () {
-          console.log("Connected to WebSocket");
-        };
-
-        socket.onmessage = function (event) {
-          try {
+          eventSource.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            console.log("Received data: ", data);
+            console.log("Received performance data via SSE:", data);
             updateMetricsFromResponse(data);
-          } catch (error) {
-            console.error("Error parsing WebSocket data: ", error);
-          }
-        };
+          };
 
-        socket.onerror = function (error) {
-          console.error("WebSocket error: ", error);
-        };
+          eventSource.onerror = function (error) {
+            console.error("Error receiving SSE data:", error);
+            eventSource.close();
 
-        socket.onclose = function (event) {
-          console.log(
-            `WebSocket closed: Code=${event.code}, Reason=${event.reason}`
-          );
-          // Reconnect after 5 seconds if closed unexpectedly
-          if (event.code !== 1000) {
-            // 1000 means normal closure
-            setTimeout(connectWebSocket, 5000);
-          }
-        };
-      }
+            // Reconnect after a delay
+            setTimeout(connectEventSource, 500);
+          };
+        }
 
-      // Initialize WebSocket connection
-      connectWebSocket();
+        connectEventSource();
+      });
 
       function updateMetricsFromResponse(data) {
         if (window.threadBarChart) {
-          console.log("updating threads chart");
+          console.log("Updating threads chart");
           window.threadBarChart.data.datasets[0].data = [
-            data.totalThreads,
-            data.runningThreads,
-            data.peakThreads,
+            data.totalThreads || 0,
+            data.runningThreads || 0,
+            data.peakThreads || 0,
           ];
           window.threadBarChart.update();
         }
@@ -155,18 +142,20 @@
         const currentTime = new Date().toLocaleTimeString();
 
         if (window.cpuChart) {
-          console.log("updating CPU chart");
+          console.log("Updating CPU chart");
           window.cpuChart.data.labels.push(currentTime);
-          window.cpuChart.data.datasets[0].data.push(data.systemLoad);
+          window.cpuChart.data.datasets[0].data.push(data.systemLoad || 0);
           window.cpuChart.update();
         }
 
         if (window.memoryChart) {
-          console.log("updating Memory chart");
+          console.log("Updating memory chart");
           window.memoryChart.data.labels.push(currentTime);
-          window.memoryChart.data.datasets[0].data.push(data.heapMemoryUsage);
+          window.memoryChart.data.datasets[0].data.push(
+            data.heapMemoryUsage || 0
+          );
           window.memoryChart.data.datasets[1].data.push(
-            data.nonHeapMemoryUsage
+            data.nonHeapMemoryUsage || 0
           );
           window.memoryChart.update();
         }

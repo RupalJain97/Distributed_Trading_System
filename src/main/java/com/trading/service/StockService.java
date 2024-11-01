@@ -21,16 +21,6 @@ public class StockService {
     private StockRepository stockRepository;
 
     public List<StockModel> getAvailableStocks() {
-        // if (stockCache.isEmpty()) { // Cache is empty, load from DB and populate the cache
-        //     List<StockModel> stocksFromDb = stockRepository.findAll();
-        //     for (StockModel stock : stocksFromDb) {
-        //         stockCache.put(stock.getSymbol(), stock);
-        //     }
-        //     return stocksFromDb;
-        // } else {
-        //     return List.copyOf(stockCache.values()); // Return cached stocks
-        // }
-
         List<String> allSymbols = stockRepository.findAllSymbols();
         List<StockModel> stocksToFetch = new ArrayList<>();
         List<StockModel> availableStocks = new ArrayList<>();

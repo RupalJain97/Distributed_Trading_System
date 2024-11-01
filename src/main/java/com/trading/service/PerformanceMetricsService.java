@@ -1,27 +1,25 @@
 package com.trading.service;
 
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
 import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.management.ThreadMXBean;
+import org.springframework.stereotype.Service;
+import com.trading.model.PerformanceMetrics;
 
 @Service
-public class PerformanceService {
+public class PerformanceMetricsService {
 
     private final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
     private final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
     private final OperatingSystemMXBean osMXBean = ManagementFactory.getOperatingSystemMXBean();
 
-    public String getPerformanceMetrics() {
-        JSONObject metrics = new JSONObject();
-        
+    public PerformanceMetrics calculatePerformanceMetrics() {
+        PerformanceMetrics metrics = new PerformanceMetrics();
+
         // Thread metrics
         int totalThreads = threadMXBean.getThreadCount();
-        int runningThreads = threadMXBean.getThreadCount() - threadMXBean.getDaemonThreadCount();
+        int runningThreads = totalThreads - threadMXBean.getDaemonThreadCount();
         int peakThreads = threadMXBean.getPeakThreadCount();
 
         // Memory metrics
@@ -30,14 +28,14 @@ public class PerformanceService {
 
         // CPU metrics
         double systemLoad = osMXBean.getSystemLoadAverage();
-        
-        metrics.put("totalThreads", totalThreads);
-        metrics.put("runningThreads", runningThreads);
-        metrics.put("peakThreads", peakThreads);
-        metrics.put("heapMemoryUsage", heapMemoryUsage);
-        metrics.put("nonHeapMemoryUsage", nonHeapMemoryUsage);
-        metrics.put("systemLoad", systemLoad);
 
-        return metrics.toString();
+        metrics.setTotalThreads(totalThreads);
+        metrics.setRunningThreads(runningThreads);
+        metrics.setPeakThreads(peakThreads);
+        metrics.setHeapMemoryUsage(heapMemoryUsage);
+        metrics.setNonHeapMemoryUsage(nonHeapMemoryUsage);
+        metrics.setSystemLoad(systemLoad);
+
+        return metrics;
     }
 }

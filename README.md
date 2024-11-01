@@ -135,10 +135,10 @@ The TradingSystem class likely acts as a utility or central service to coordinat
 946
 
 
-## System Performance 
+## Real-Time Performance Monitoring
+The system provides live performance monitoring through SSE (Server-Sent Events) for updating key metrics on the user dashboard. Metrics such as active threads, CPU load, and memory usage are updated every 5 minutes, or instantly whenever a new order is placed. This setup allows for real-time monitoring, offering users insights into application performance, which is crucial for high-frequency trading scenarios.
 
-
-To achieve detailed performance metrics for your multithreaded stock trading application, you can focus on gathering the following metrics:
+To achieve detailed performance metrics for the stock trading application, I have focused on gathering the following metrics:
 
 1. Thread Pool Metrics
 * Total number of threads in your application.
@@ -155,6 +155,14 @@ To achieve detailed performance metrics for your multithreaded stock trading app
 * JVM heap memory usage.
 * Non-heap memory usage.
 
-4. Throughput and Latency
+<!-- 4. Throughput and Latency
 * Number of orders processed per second (throughput).
-* Time taken to complete an order (latency).
+* Time taken to complete an order (latency). -->
+
+
+## Testing
+The application underwent rigorous testing, including:
+
+* **Unit Testing** to verify individual functions for each microservice.
+* **Integration Testing** to ensure seamless data flow and operation across the entire microservices setup.
+* **Load Testing** to gauge the application's performance under high-concurrency scenarios. These tests were performed to confirm the stability of the order processing, stock updates, and real-time metrics components under a heavy load.
