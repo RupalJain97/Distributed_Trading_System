@@ -187,7 +187,7 @@ a:hover {
 
 
 .container {
-    max-width: 1200px;
+    max-width: 92%;
     margin: 10px auto;
     padding: 20px;
     background-color: #fff;
@@ -390,3 +390,43 @@ tr:hover {
     background-color: grey;
     cursor: not-allowed;
 }
+
+
+/* ******************************
+    DASHBOARD, STOCK, ORDERS
+****************************** */
+
+.graph-container {
+    max-width: 92%;
+    margin: 10px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.row {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-content: center;
+    align-items: stretch;
+    gap: 30px;
+}
+
+canvas {
+    display: block;
+    box-sizing: border-box;
+    width: 100% !important;
+}
+
+.col {
+    padding-bottom: 15px;
+    border: 2px solid rgb(186, 186, 198);
+}
+
