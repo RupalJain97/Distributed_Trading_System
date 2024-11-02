@@ -1,155 +1,144 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Order Dashboard</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css" />
-  </head>
-  <body>
-    <nav class="navbar">
-      <div class="navbar-left">
-        <span>Welcome, <span th:text="${user.username}">Username</span></span>
-      </div>
-      <div class="navbar-right">
-        <span
-          >User ID:
-          <span id="userID" th:text="${user.userid}">UserID</span></span
-        >
-        <a href="/user" class="dashboard-btn">Back to Dashboard</a>
-        <a href="/logout" class="logout-btn">Logout</a>
-      </div>
-    </nav>
+<head>
+  <meta charset="UTF-8" />
+  <title>Order Dashboard</title>
 
-    <div class="container">
-      <h2>Your Stocks</h2>
+  <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
 
-      <p>Total Orders Placed: <span id="orderCount"></span></p>
-
-      <table>
-        <tr>
-          <th>Stock Symbol</th>
-          <th>Company Name</th>
-          <th>Stock Price</th>
-          <th>Quantity</th>
-          <!-- <th>Order Price</th> -->
-          <th>Last Update Date</th>
-          <!-- <th>Order Type</th> -->
-        </tr>
-        <tr th:each="order : ${orders}">
-          <td th:text="${order.stockSymbol}"></td>
-          <td th:text="${order.companyName}"></td>
-          <td th:text="${order.lastPrice}"></td>
-          <td th:text="${order.currentQuantity}"></td>
-          <td
-            th:text="${#dates.format(order.lastOrderDate, 'MM-dd-yyyy, HH:hh:mm')}"
-          ></td>
-          <!-- <td th:text="${order.orderType}"></td> -->
-          <td>
-            <button
-              th:onclick="sellStock([[${order.stockSymbol}]], [[${order.currentQuantity}]], [[${order.lastPrice}]], [[${user.userid}]])"
-            >
-              Sell
-            </button>
-          </td>
-        </tr>
-      </table>
+<body>
+  <nav class="navbar">
+    <div class="navbar-left">
+      <span>Welcome, <span th:text="${user.username}">Username</span></span>
     </div>
+    <div class="navbar-right">
+      <span>User ID:
+        <span id="userID" th:text="${user.userid}">UserID</span></span>
+      <a href="/user" class="dashboard-btn">Back to Dashboard</a>
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+  </nav>
 
-    <script>
-      const userId = document.getElementById("userID").textContent;
+  <div class="container">
+    <h2>Your Stocks</h2>
 
-      function sellStock(symbol, userAvailableQuantity, price, userId) {
-        const row = event.target.closest("tr");
+    <p>Total Orders Placed: <span id="orderCount"></span></p>
 
-        if (!row.querySelector(".sell-quantity")) {
-          const quantityCell = document.createElement("td");
-          quantityCell.innerHTML = `<input type="number" class="sell-quantity" placeholder="Quantity to Sell" min="1" max="${userAvailableQuantity}">`;
-          row.appendChild(quantityCell);
+    <table>
+      <tr>
+        <th>Stock Symbol</th>
+        <th>Company Name</th>
+        <th>Stock Price</th>
+        <th>Quantity</th>
+        <!-- <th>Order Price</th> -->
+        <th>Last Update Date</th>
+        <!-- <th>Order Type</th> -->
+      </tr>
+      <tr th:each="order : ${orders}">
+        <td th:text="${order.stockSymbol}"></td>
+        <td th:text="${order.companyName}"></td>
+        <td th:text="${order.lastPrice}"></td>
+        <td th:text="${order.currentQuantity}"></td>
+        <td th:text="${#dates.format(order.lastOrderDate, 'MM-dd-yyyy, HH:hh:mm')}"></td>
+        <!-- <td th:text="${order.orderType}"></td> -->
+        <td>
+          <button class="buy-sell-btn"
+            th:onclick="openModal([[${order.stockSymbol}]], [[${order.currentQuantity}]], [[${order.lastPrice}]])">
+            Sell
+          </button>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-          const finalPriceCell = document.createElement("td");
-          finalPriceCell.classList.add("final-price");
-          finalPriceCell.textContent = "0"; // Initial value for final price
-          row.appendChild(finalPriceCell);
+  <!-- Modal for Selling Stocks -->
+  <div id="sellModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Sell Stock</h3>
+      <p id="modalStockInfo"></p>
+      <label for="sellQuantity">Quantity:</label>
+      <input type="number" id="sellQuantity" min="1" placeholder="Enter quantity" />
+      <p>Total Price: $<span id="totalSellPrice">0.00</span></p>
+      <button onclick="submitSellOrder()">Confirm Sell</button>
+    </div>
+  </div>
 
-          const submitButtonCell = document.createElement("td");
-          submitButtonCell.innerHTML = `<button class="submit-btn disabled-button" disabled onclick="submitSellOrder('${symbol}', ${price}, '${userId}')">Submit</button>`;
-          row.appendChild(submitButtonCell);
+  <script>
+    const userId = document.getElementById("userID").textContent;
 
-          const quantityInput = row.querySelector(".sell-quantity");
-          const submitButton = row.querySelector(".submit-btn");
+    let selectedSymbol, selectedPrice, maxQuantity;
 
-          quantityInput.addEventListener("input", function () {
-            const quantity = parseInt(quantityInput.value) || 0;
-            const finalPrice = quantity * price;
-            finalPriceCell.textContent = finalPrice.toFixed(2);
+    function openModal(symbol, availableQuantity, price) {
+      selectedSymbol = symbol;
+      selectedPrice = price;
+      maxQuantity = availableQuantity;
 
-            // Validate the input
-            if (quantity > 0 && quantity <= userAvailableQuantity) {
-              quantityInput.classList.remove("invalid");
-              quantityInput.classList.add("valid");
-              submitButton.disabled = false;
-              submitButton.classList.remove("disabled-button");
-            } else {
-              quantityInput.classList.remove("valid");
-              quantityInput.classList.add("invalid");
-              submitButton.disabled = true;
-              submitButton.classList.add("disabled-button");
-            }
-          });
-        }
-      }
+      // Set stock info and open modal
+      document.getElementById("modalStockInfo").textContent = `${symbol} - Price: $${price}`;
+      document.getElementById("sellQuantity").max = availableQuantity;
+      document.getElementById("sellModal").style.display = "flex";
+    }
 
-      function submitSellOrder(symbol, price, userId) {
-        const row = event.target.closest("tr");
-        const sellQuantity = row.querySelector(".sell-quantity").value;
-        const finalPrice = row.querySelector(".final-price").textContent;
+    function closeModal() {
+      document.getElementById("sellModal").style.display = "none";
+      document.getElementById("sellQuantity").value = "";
+      document.getElementById("totalSellPrice").textContent = "0.00";
+    }
 
-        if (sellQuantity > 0) {
-          const order = {
-            stockSymbol: symbol,
-            quantity: sellQuantity,
-            stockPrice: price,
-            orderPrice: finalPrice,
-            orderType: "Sell",
-            userId: userId,
-          };
+    document.getElementById("sellQuantity").addEventListener("input", function () {
+      const quantity = parseInt(this.value) || 0;
+      const totalPrice = quantity * selectedPrice;
+      document.getElementById("totalSellPrice").textContent = totalPrice.toFixed(2);
+    });
 
-          fetch("/orders/sell", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(order),
+    function submitSellOrder() {
+      const quantity = parseInt(document.getElementById("sellQuantity").value);
+      if (quantity > 0 && quantity <= maxQuantity) {
+        const order = {
+          stockSymbol: selectedSymbol,
+          quantity: quantity,
+          orderPrice: selectedPrice * quantity,
+          orderType: "Sell",
+          stockPrice: selectedPrice,
+          userId: userId,
+        };
+        console.log("Order:", order);
+
+        // Send order to backend
+        fetch("/orders/sell", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(order),
+        })
+          .then((response) => response.text())
+          .then((data) => {
+            alert("Order placed successfully!");
+            closeModal();
           })
-            .then((response) => response.text())
-            .then((data) => {
-              alert("Order Sold Successfully"); // Display response from the backend
-
-              // Remove child elements safely
-              const sellQuantityInput = row.querySelector(".sell-quantity");
-              const finalPriceCell = row.querySelector(".final-price");
-              const submitButton = row.querySelector(".submit-btn");
-
-              if (sellQuantityInput) {
-                row.removeChild(sellQuantityInput.parentNode); // Remove the parent <td>
-              }
-              if (finalPriceCell) {
-                row.removeChild(finalPriceCell); // Remove final price cell
-              }
-              if (submitButton) {
-                row.removeChild(submitButton.parentNode); // Remove the parent <td>
-              }
-              location.reload(); // Reload the page after sell
-            })
-            .catch((error) => {
-              console.error("Error:", error);
-            });
-        } else {
-          alert("Please enter a valid quantity");
-        }
+          .catch((error) => console.error("Error:", error));
+      } else {
+        alert("Please enter a valid quantity");
       }
+    }
 
-    </script>
-  </body>
+    function fetchOrderStatus(userId) {
+      // console.log(" User requesting: ", userId);
+      fetch(`/orders/${userId}`)
+        .then((response) => response.text())
+        .then(
+          (data) => (document.getElementById("orderCount").textContent = data)
+        );
+    }
+
+    window.onload = function () {
+      const userId = document.getElementById("userID").textContent;
+      fetchOrderStatus(userId);
+    };
+
+  </script>
+</body>
+
 </html>

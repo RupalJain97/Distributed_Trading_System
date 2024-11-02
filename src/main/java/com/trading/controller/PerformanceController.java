@@ -13,13 +13,17 @@ import jakarta.annotation.PostConstruct;
 
 import com.trading.model.PerformanceMetrics;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
-
+import java.util.Date;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -30,31 +34,13 @@ public class PerformanceController {
 
     // List to manage active SseEmitters
     private final List<SseEmitter> emitters = Collections.synchronizedList(new ArrayList<>());
+    private final ReentrantLock emitterLock = new ReentrantLock(); // Ensure single update at a time
 
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamPerformanceMetrics() {
         System.out.println("SSE endpoint called");
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        // ScheduledFuture<?> task = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
-        //     try {
-        //         if (metricsService != null) {
-        //             System.out.println("Calculating performance metrics...");
-        //             PerformanceMetrics metrics = metricsService.calculatePerformanceMetrics();
-        //             System.out.println("Sending metrics via SSE: " + metrics);
-        //             emitter.send(metrics);
-        //         } else {
-        //             System.err.println("PerformanceMetricsService is null!");
-        //         }
-        //     } catch (IOException e) {
-        //         System.err.println("Error sending SSE: " + e.getMessage());
-        //         emitter.completeWithError(e);
-        //     } catch (Exception e) {
-        //         System.err.println("Unexpected error in SSE: " + e.getMessage());
-        //         emitter.completeWithError(e);
-        //     }
-        // }, 0, 20, TimeUnit.SECONDS);
-
         emitters.add(emitter);
 
         emitter.onCompletion(() -> {
@@ -83,20 +69,26 @@ public class PerformanceController {
 
     // Method to broadcast metrics to all connected clients
     public void broadcastMetrics(PerformanceMetrics metrics) {
-        synchronized (emitters) {
+        emitterLock.lock(); // Prevent simultaneous updates
+        System.out.println("Emitters currently locked...");
+        try {
             for (SseEmitter emitter : emitters) {
                 try {
                     emitter.send(metrics);
                 } catch (IOException e) {
                     emitter.completeWithError(e);
+                    emitters.remove(emitter); // Remove failed emitter
                 }
             }
+        } finally {
+            emitterLock.unlock(); // Release lock after updates
+            System.out.println("Emitters currently Unlocked...");
         }
     }
 
     @PostConstruct
     public void startPeriodicMetricsUpdate() {
-        Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
+        ScheduledFuture<?> task = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(() -> {
             try {
                 PerformanceMetrics metrics = metricsService.calculatePerformanceMetrics();
                 System.out.println("Sending periodic metrics via SSE: " + metrics);
@@ -104,6 +96,6 @@ public class PerformanceController {
             } catch (Exception e) {
                 System.err.println("Error sending periodic SSE: " + e.getMessage());
             }
-        }, 0, 5, TimeUnit.MINUTES); // Update every 5 minutes
+        }, 0, 3, TimeUnit.MINUTES); // Update every 3 minutes
     }
 }

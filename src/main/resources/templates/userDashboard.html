@@ -56,14 +56,33 @@
 
         // Initialize charts
         window.threadBarChart = new Chart(threadBarChartCtx, {
-          type: "bar",
+          type: "line",
           data: {
-            labels: ["Total", "Running", "Peak"],
+            labels: [],
+            // labels: ["Total", "Running", "Peak"],
             datasets: [
+              // {
+              //   label: "Total Thread",
+              //   data: [0, 0, 0],
+              //   backgroundColor: ["blue", "green", "orange"],
+              // },
               {
-                label: "Thread States",
-                data: [0, 0, 0],
-                backgroundColor: ["blue", "green", "orange"],
+                label: "Total Thread",
+                data: [],
+                borderColor: "blue",
+                fill: false,
+              },
+              {
+                label: "Running Threads",
+                data: [],
+                borderColor: "Red",
+                fill: false,
+              },
+              {
+                label: "In-use Threads",
+                data: [],
+                borderColor: "Green",
+                fill: false,
               },
             ],
           },
@@ -77,7 +96,7 @@
               {
                 label: "System Load",
                 data: [],
-                borderColor: "red",
+                borderColor: "orange",
                 fill: false,
               },
             ],
@@ -129,17 +148,32 @@
       });
 
       function updateMetricsFromResponse(data) {
+        const currentTime = new Date().toLocaleTimeString();
+
+        // if (window.threadBarChart) {
+        //   console.log("Updating threads chart");
+        //   window.threadBarChart.data.labels.push(currentTime);
+        //   window.threadBarChart.data.datasets[0].data = [
+        //     data.totalThreads || 0,
+        //     data.runningThreads || 0,
+        //     data.peakThreads || 0,
+        //   ];
+        //   window.threadBarChart.update();
+        // }
         if (window.threadBarChart) {
           console.log("Updating threads chart");
-          window.threadBarChart.data.datasets[0].data = [
-            data.totalThreads || 0,
+          window.threadBarChart.data.labels.push(currentTime);
+          window.threadBarChart.data.datasets[0].data.push(
+            data.totalThreads || 0
+          );
+          window.threadBarChart.data.datasets[1].data.push(
             data.runningThreads || 0,
+          );
+          window.threadBarChart.data.datasets[2].data.push(
             data.peakThreads || 0,
-          ];
+          );
           window.threadBarChart.update();
         }
-
-        const currentTime = new Date().toLocaleTimeString();
 
         if (window.cpuChart) {
           console.log("Updating CPU chart");

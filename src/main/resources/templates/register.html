@@ -1,70 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css" />
-  </head>
-  <body>
-    <div class="register-container">
-      <h1>Register</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register</title>
 
-      <!-- Display error message if userid is already in use -->
-      <div th:if="${errorMessage != null}">
-        <p style="color: red" th:text="${errorMessage}"></p>
-      </div>
+  <link rel="stylesheet" type="text/css" href="/css/style.css" />
+</head>
 
-      <form action="/register" method="POST" class="register-form">
-        <div class="input-group">
-          <label for="username">Full Name:</label>
-          <input type="text" id="username" name="username" required />
-        </div>
+<body>
+  <div class="register-container">
+    <h1>Register</h1>
 
-        <div class="input-group">
-          <label for="userid">User ID:</label>
-          <input type="text" id="userid" name="userid" required />
-        </div>
-
-        <div class="input-group">
-          <label for="password">Password:</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).{8,20}"
-            title="Password must be 8-20 characters long, contain at least one uppercase letter, one lowercase letter, one digit, numbers and one special character"
-          />
-        </div>
-
-        <div class="input-group">
-          <button type="submit">Register</button>
-        </div>
-      </form>
-
-      <p class="login-link">
-        Already have an account? <a href="/login">Login</a>
-      </p>
+    <!-- Display error message if userid is already in use -->
+    <div th:if="${errorMessage != null}">
+      <p style="color: red" th:text="${errorMessage}"></p>
     </div>
 
-    <script>
-      // document
-      //   .getElementById("register-form")
-      //   .addEventListener("submit", function (event) {
-      //     const passwordInput = document.getElementById("password").value;
+    <form action="/register" method="POST" class="register-form">
+      <div class="input-group">
+        <label for="username">Full Name:</label>
+        <input type="text" id="username" name="username" required />
+      </div>
 
-      //     const passwordPolicy =
-      //       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,20}$/;
+      <div class="input-group">
+        <label for="userid">User ID:</label>
+        <input type="text" id="userid" name="userid" required />
+      </div>
 
-      //     if (!passwordPolicy.test(passwordInput)) {
-      //       alert(
-      //         "Password does not meet the required criteria. It must be 8-20 characters long, include at least one uppercase letter, one lowercase letter, one digit, and one special character."
-      //       );
-      //       event.preventDefault(); // Prevent form submission if validation fails
-      //     }
-      //   });
-    </script>
-  </body>
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required
+          pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%^&+=]).{8,20}"
+          title="Password must be 8-20 characters long, contain at least one uppercase letter, one lowercase letter, one digit, numbers and one special character" />
+      </div>
+
+      <div class="input-group">
+        <button type="submit">Register</button>
+      </div>
+    </form>
+
+    <p class="login-link">
+      Already have an account? <a href="/login">Login</a>
+    </p>
+  </div>
+
+  <script>
+    document
+      .getElementById("register-form")
+      .addEventListener("submit", function (event) {
+        const passwordInput = document.getElementById("password").value;
+
+        const passwordPolicy =
+          /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,20}$/;
+
+        if (!passwordPolicy.test(passwordInput)) {
+          alert(
+            "Password does not meet the required criteria. It must be 8-20 characters long, include at least one uppercase letter, one lowercase letter, one digit, and one special character."
+          );
+          event.preventDefault(); // Prevent form submission if validation fails
+        }
+      });
+  </script>
+</body>
+
 </html>
