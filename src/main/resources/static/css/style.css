@@ -276,7 +276,7 @@ tr:hover {
 
 
 .buy-sell-btn {
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
     padding: 8px 12px;
     font-size: 0.9em;
@@ -287,7 +287,7 @@ tr:hover {
 }
 
 .buy-sell-btn:hover {
-    background-color: #0056b3;
+    background-color: #45a049;
 }
 
 /*
@@ -318,14 +318,14 @@ tr:hover {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: #dae4ed;
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
     width: 300px;
     text-align: center;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.71);
 }
 
 
@@ -339,7 +339,9 @@ tr:hover {
 
 .modal-content h3 {
     margin: 0 0 15px;
-    color: #333;
+    color: #080974;
+    padding-top: 30px;
+    padding-bottom: 10px;
 }
 
 .modal-content input {
@@ -351,7 +353,7 @@ tr:hover {
 }
 
 .modal-content button {
-    background-color: #4CAF50;
+    background-color: #0056b3;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -362,8 +364,9 @@ tr:hover {
 }
 
 .modal-content button:hover {
-    background-color: #45a049;
+    background-color: #1876dc;
 }
+
 
 /* Info Text */
 .modal-content p {
