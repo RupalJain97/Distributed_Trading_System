@@ -19,6 +19,7 @@ import com.trading.proto.Performance.PerformanceRequest;
 import com.trading.proto.Performance.PerformanceResponse;
 
 import java.util.Optional;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,9 @@ public class OrderService {
     @Autowired
     private PerformanceController performanceController; // Use PerformanceController to access the SSE emitter
 
+    @Autowired
+    private PerformanceMetricsService metricsService;
+
     private ConcurrentHashMap<String, List<OrderModel>> orderCache = new ConcurrentHashMap<>();
 
     // ExecutorService for managing threads
@@ -76,7 +80,7 @@ public class OrderService {
 
         try {
             PerformanceResponse response = performanceStub.getPerformance(request);
-            System.out.println("Received performance metrics via gRPC: " + response);
+            System.out.println("Received performance metrics via gRPC: " + response +  " \n Timestamp:" + System.currentTimeMillis());
 
             // Convert gRPC response to PerformanceMetrics
             PerformanceMetrics metrics = new PerformanceMetrics();
@@ -86,12 +90,13 @@ public class OrderService {
             metrics.setHeapMemoryUsage(response.getHeapMemoryUsage());
             metrics.setNonHeapMemoryUsage(response.getNonHeapMemoryUsage());
             metrics.setSystemLoad(response.getSystemLoad());
+            metrics.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
             // Send order-triggered metrics via SSE
             performanceController.broadcastMetrics(metrics);
 
         } catch (Exception e) {
-            System.err.println("Error sending performance metrics: " + e.getMessage());
+            System.err.println("Error sending performance metrics via gRPC: " + e.getMessage());
         }
     }
 

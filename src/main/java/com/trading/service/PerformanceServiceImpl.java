@@ -2,12 +2,6 @@ package com.trading.service;
 
 import io.grpc.stub.StreamObserver;
 import com.trading.proto.PerformanceServiceGrpc;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.ThreadMXBean;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +24,7 @@ public class PerformanceServiceImpl extends PerformanceServiceGrpc.PerformanceSe
     public void getPerformance(PerformanceRequest request, StreamObserver<PerformanceResponse> responseObserver) {
         // Calculate real performance metrics on Server Side (gRPC calls)
         PerformanceMetrics metrics = metricsService.calculatePerformanceMetrics();
+        metricsService.cacheMetrics(metrics); 
 
         // Convert to gRPC response
         PerformanceResponse response = PerformanceResponse.newBuilder()
