@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -68,7 +69,7 @@ public class PerformanceController {
 
     private void removeEmitter(String emitterId) {
         // synchronized (emitters) {
-            emitterMap.remove(emitterId);
+        emitterMap.remove(emitterId);
         // }
     }
 
@@ -77,23 +78,25 @@ public class PerformanceController {
         emitterLock.lock(); // Prevent simultaneous updates
         System.out.println("Emitters currently locked...");
         try {
-            // for (SseEmitter emitter : emitters) {
-            //     try {
-            //         emitter.send(metrics);
-            //     } catch (IOException e) {
-            //         emitter.completeWithError(e);
-            //         removeEmitter(emitter);
-            //     }
-            // }
-            emitterMap.values().removeIf(emitter -> {
+            Iterator<Map.Entry<String, SseEmitter>> iterator = emitterMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, SseEmitter> entry = iterator.next();
+                SseEmitter emitter = entry.getValue();
                 try {
                     emitter.send(metrics);
-                    return false;
                 } catch (IOException e) {
+                    // Complete and remove the emitter if sending fails
                     emitter.completeWithError(e);
-                    return true;  // Remove emitter on error
+                    iterator.remove();
+                    System.err.println("Emitter removed due to IOException: " + e.getMessage());
+                } catch (IllegalStateException e) {
+                    // Handle the case where the emitter cannot be used as the AsyncContext has
+                    // closed
+                    emitter.complete();
+                    iterator.remove();
+                    System.err.println("Emitter removed due to IllegalStateException: " + e.getMessage());
                 }
-            });
+            }
         } finally {
             emitterLock.unlock(); // Release lock after updates
             System.out.println("Emitters currently Unlocked...");
