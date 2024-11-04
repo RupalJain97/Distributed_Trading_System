@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>Stock Dashboard</title>
 
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/arrow.png">
   <link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 
@@ -21,9 +22,16 @@
   </nav>
 
   <div class="container">
-    <h2>Current Stocks Availability</h2>
+    <h2 style="display: flex;
+        align-items: stretch;
+        align-content: center; gap: 7px">
+      <img src="/icons/profit.png" alt="Icon Description">
+      <span style="align-self: center;">Current Stocks Availability</span>
+    </h2>
 
     <p class="stock-count" th:text="${#lists.size(stocks)} + ' stocks loaded.'"></p>
+
+    <p id="last-updated-time"></p>
 
     <table>
       <thead>
@@ -31,7 +39,10 @@
           <th>Stock Symbol</th>
           <th>Company Name</th>
           <th>Stock Price</th>
+          <th class="stockLowPrice">Lowest Price</th>
+          <th class="stockHighPrice">Highest Price</th>
           <th>Quantity</th>
+          <th></th>
         </tr>
       </thead>
       <tbody id="stock-table-body">
@@ -41,6 +52,8 @@
             Company Name
           </td>
           <td id="stockPrice" th:text="${stock.price}">Price</td>
+          <td id="stockLowPrice" th:text="${stock.lowPrice}">Price</td>
+          <td id="stockHighPrice" th:text="${stock.highPrice}">Price</td>
           <td id="stockQuantity" th:text="${stock.quantity}">
             Available Quantity
           </td>
@@ -53,8 +66,6 @@
         </tr>
       </tbody>
     </table>
-
-    <p id="last-updated-time"></p>
   </div>
 
   <!-- Modal Popup -->
@@ -102,9 +113,6 @@
       fetch("/stocks/data")
         .then((response) => response.json())
         .then((data) => {
-          // const stockTableBody = document.getElementById("stock-table-body");
-          // stockTableBody.innerHTML = ""; // Clear existing rows
-
           data.forEach((stock) => {
             const stockRow = document.getElementById(
               `stock-row-${stock.symbol}`
@@ -118,6 +126,8 @@
               if (stockQuantityCell && stockPriceCell) {
                 stockQuantityCell.textContent = stock.quantity;
                 stockPriceCell.textContent = stock.price;
+                stockRow.querySelector("#stockLowPrice").textContent = stock.lowPrice;
+                stockRow.querySelector("#stockHighPrice").textContent = stock.highPrice;
               }
             }
           });

@@ -1,36 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/style.css">
-  </head>
-  <body>
-    <div class="login-container">
-      <h1>Login</h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    Login
+  </title>
 
-      <!-- Display error message if userid is already in use -->
-      <div id="login_error" th:if="${error != null}" style="color: red">
-        <p th:text="${error}">Invalid ID or Password</p>
-      </div>
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/arrow.png">
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
 
-      <form action="/login" method="POST">
-        <div class="input-group">
-          <label for="userid">User ID:</label>
-          <input type="text" id="userid" name="userid" required />
-        </div>
-        <div class="input-group">
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" required />
-        </div>
-        <div class="input-group">
-          <button type="submit">Login</button>
-        </div>
-      </form>
+<body>
+  <div class="login-container">
+    <h1>Login</h1>
 
-      <p class="login-link">Don't have an account? <a href="/register">Register here</a></p>
+    <!-- Display error message if userid is already in use -->
+    <div id="login_error" th:if="${error != null}" style="color: red">
+      <p th:text="${error}">Invalid ID or Password</p>
     </div>
-  </body>
+
+    <form action="/login" method="POST">
+      <div class="input-group">
+        <label for="userid">User ID:</label>
+        <input type="text" id="userid" name="userid" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="input-group">
+        <button type="submit">Login</button>
+      </div>
+    </form>
+
+    <p class="login-link">Don't have an account? <a href="/register">Register here</a></p>
+  </div>
+</body>
+
 </html>

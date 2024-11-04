@@ -115,6 +115,8 @@ public class OrderService {
                 if (stock != null) {
                     stock.setQuantity(stock.getQuantity() - order.getQuantity());
                     stock.setPrice(stock.getPrice() + 1); // Simulate stock price increase after buy
+                    stock.setLowPrice(stock.getPrice());
+                    stock.setHighPrice(stock.getPrice());
                     stockService.updateStock(stock);
 
                     Optional<UserHoldingsModel> userHoldingOpt = userHoldingsRepository
@@ -162,6 +164,8 @@ public class OrderService {
                 if (stock != null) {
                     stock.setQuantity(stock.getQuantity() + order.getQuantity());
                     stock.setPrice(stock.getPrice() - 1); // Simulate price drop after selling
+                    stock.setLowPrice(stock.getPrice());
+                    stock.setHighPrice(stock.getPrice());
                     stockService.updateStock(stock);
 
                     if (userHoldingOpt.isPresent()) {

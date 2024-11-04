@@ -1,6 +1,6 @@
 /* General styling */
 body {
-    /* font-family: Verdana, Geneva, Tahoma, sans-serif; */
+    font-family: Cambria;
     background-color: #f4f4f9;
     margin: 0;
     padding: 0;
@@ -159,19 +159,11 @@ a:hover {
     margin-left: 10px;
 }
 
-.logout-btn {
+.logout-btn, .dashboard-btn {
     color: #fff;
     text-decoration: none;
-    background-color: #0056b3;
-    border: 2px solid #f8f8f8;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-.dashboard-btn {
-    color: #fff;
-    text-decoration: none;
-    background-color: #0056b3;
+    /* background-color: #0056b3; */
+    background-color: #1a66a1;
     border: 2px solid #f8f8f8;
     padding: 5px 10px;
     border-radius: 5px;
@@ -180,7 +172,7 @@ a:hover {
 .logout-btn:hover,
 .dashboard-btn:hover {
     text-decoration: underline;
-    background-color: #1876dc;
+    background-color: #349dc2;
     color: white;
 }
 
@@ -233,9 +225,7 @@ td {
 }
 
 th {
-    /* background-color: #7cc38b60; */
-    background-color: #4CAF50;
-    /* color: #0056b3; */
+    background-color: #349dc2;
     color: white;
     font-size: 16px;
     text-align: center;
@@ -247,17 +237,15 @@ td {
     font-size: 0.95em;
 }
 
-td button {
-    background-color: #218838;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
+#stockLowPrice,
+.stockLowPrice {
+    background-color: rgba(218, 40, 76, 0.46);
 }
 
-td button:hover {
-    /* background-color: #2eb44b; */
-    background-color: #218838;
+
+#stockHighPrice,
+.stockHighPrice {
+    background-color: rgba(40, 218, 99, 0.6);
 }
 
 .quantity-input {
@@ -276,10 +264,12 @@ tr:hover {
 
 
 .buy-sell-btn {
-    background-color: #4CAF50;
+    background-color: #4cafa8;
     color: white;
     padding: 8px 12px;
     font-size: 0.9em;
+    font-weight: bold;
+    font-style: italic;
     border: none;
     cursor: pointer;
     border-radius: 4px;
@@ -287,20 +277,9 @@ tr:hover {
 }
 
 .buy-sell-btn:hover {
-    background-color: #45a049;
+    background-color: #1c708e;
 }
 
-/*
- User Dashboard Styles 
-.account-summary, .portfolio-summary, .recent-transactions, .market-news, .stock-performance-chart {
-    margin-bottom: 20px;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-}
-
-*/
 
 /* Modal styles */
 .modal {
@@ -426,7 +405,15 @@ canvas {
 }
 
 .col {
-    padding-bottom: 15px;
+    padding: 10px 10px 15px 10px;
     border: 2px solid rgb(186, 186, 198);
 }
 
+
+/* Stocks Icons */
+img {
+    width: 40px;
+    height: auto;
+    background-size: cover;
+    /* margin-right: 10px; */
+}

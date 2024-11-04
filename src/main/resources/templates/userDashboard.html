@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Dashboard</title>
 
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/arrow.png">
   <link rel="stylesheet" type="text/css" href="/css/style.css" />
   <link rel="stylesheet" type="text/css" href="/css/flex.css" />
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -26,7 +27,9 @@
   </nav>
 
   <div class="container">
-    <p>View and manage your stocks.</p>
+    <p>
+      <b>Your Dashboard: </b>View and manage your stocks
+    </p>
     <div class="dashboard-links">
       <a href="/stocks">View Stocks</a> | <a href="/orders">View Orders</a> |
       <a th:href="@{|/${user.userid}/history|}">View Order History</a>
@@ -35,17 +38,22 @@
 
   <div class="graph-container" id="performance-metrics">
     <div class="row">
-      <h3>Performance Metrics</h3>
+      <h3 style="display: flex;
+    align-items: stretch;
+    align-content: center; gap: 7px">
+        <img src="/icons/market-research.png" alt="Icon Description">
+        <span style="align-self: center;">Performance Metrics</span>
+      </h3>
     </div>
 
     <div class="row">
-      <div class="col col-sm-10 col-lg-9 col-xl-6 col-xxl-5">
+      <div class="col col-sm-10 col-lg-9 col-xl-5 col-xxl-5">
         <canvas id="threadBarChart"></canvas>
       </div>
-      <div class="col col-sm-10 col-lg-9 col-xl-6 col-xxl-5">
+      <div class="col col-sm-10 col-lg-9 col-xl-5 col-xxl-5">
         <canvas id="cpuChart"></canvas>
       </div>
-      <div class="col col-sm-10 col-lg-9 col-xl-6 col-xxl-5">
+      <div class="col col-sm-10 col-lg-9 col-xl-5 col-xxl-5">
         <canvas id="memoryChart"></canvas>
       </div>
     </div>
@@ -132,7 +140,7 @@
             {
               label: "Non-Heap Memory Usage (MB)",
               data: [],
-              borderColor: "pink",
+              borderColor: "teal",
               fill: false,
             },
           ],

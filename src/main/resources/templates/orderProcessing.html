@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <title>Order Dashboard</title>
 
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/arrow.png">
   <link rel="stylesheet" type="text/css" href="/css/style.css" />
 </head>
 
@@ -22,7 +23,12 @@
   </nav>
 
   <div class="container">
-    <h2>Your Stocks</h2>
+    <h2 style="display: flex;
+    align-items: stretch;
+    align-content: center; gap: 7px">
+      <img src="/icons/buy-and-sell.png" style="width: 40px !important; height: auto;" alt="Icon Description">
+      <span style="align-self: center;">Your Stocks</span>
+    </h2>
 
     <p>Total Orders Placed: <span id="orderCount"></span></p>
 
@@ -32,9 +38,8 @@
         <th>Company Name</th>
         <th>Stock Price</th>
         <th>Quantity</th>
-        <!-- <th>Order Price</th> -->
         <th>Last Update Date</th>
-        <!-- <th>Order Type</th> -->
+        <th></th>
       </tr>
       <tr th:each="order : ${orders}">
         <td th:text="${order.stockSymbol}"></td>

@@ -22,6 +22,12 @@ public class StockModel {
     @Column(name = "price", nullable = false)
     private double price;
 
+    @Column(name = "high_price", nullable = false)
+    private double highPrice; // All-time high price for the stock
+
+    @Column(name = "low_price", nullable = false)
+    private double lowPrice; // All-time low price for the stock
+
     // No-argument constructor (required by JPA)
     public StockModel() {
     }
@@ -32,6 +38,8 @@ public class StockModel {
         this.companyName = companyName;
         this.quantity = quantity;
         this.price = price;
+        this.highPrice = Math.max(this.highPrice, price);
+        this.lowPrice = Math.min(this.lowPrice, price);
     }
 
     public Long getId() {
@@ -72,5 +80,21 @@ public class StockModel {
 
     public void setQuantity(int stock_left) {
         this.quantity = stock_left;
+    }
+
+    public double getHighPrice() {
+        return highPrice;
+    }
+
+    public void setHighPrice(double price) {
+        this.highPrice = Math.max(this.highPrice, price);
+    }
+
+    public double getLowPrice() {
+        return lowPrice;
+    }
+
+    public void setLowPrice(double price) {
+        this.lowPrice = Math.min(this.lowPrice, price);
     }
 }

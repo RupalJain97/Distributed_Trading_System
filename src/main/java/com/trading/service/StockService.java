@@ -68,6 +68,8 @@ public class StockService {
             StockModel existingStock = stockRepository.findBySymbol(stock.getSymbol());
             if (existingStock != null) {
                 existingStock.setPrice(stock.getPrice());
+                existingStock.setLowPrice(stock.getPrice());
+                existingStock.setHighPrice(stock.getPrice());
                 existingStock.setQuantity(stock.getQuantity());
                 stockRepository.save(existingStock);
 
