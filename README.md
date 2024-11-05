@@ -159,6 +159,9 @@ To achieve detailed performance metrics for the stock trading application, I hav
 * Number of orders processed per second (throughput).
 * Time taken to complete an order (latency). -->
 
+![Performance Metric](Screenshots_Videos/performance_metric2.png)
+
+
 
 ## Testing
 The application underwent rigorous testing, including:
@@ -166,3 +169,27 @@ The application underwent rigorous testing, including:
 * **Unit Testing** to verify individual functions for each microservice.
 * **Integration Testing** to ensure seamless data flow and operation across the entire microservices setup.
 * **Load Testing** to gauge the application's performance under high-concurrency scenarios. These tests were performed to confirm the stability of the order processing, stock updates, and real-time metrics components under a heavy load.
+
+
+## ScreenShots
+
+Check out the working of the system here:
+
+[Demo Video](Screenshots_Videos\Distributed_Trading_System2.mp4)
+
+
+1. **User Dashboard:**
+![User Dashboard](Screenshots_Videos/user_dashboard.png)
+
+2. **Stocks Availability**
+![Stocks Availability](Screenshots_Videos/stocks_data.png)
+
+3. **Stocks currently in the user's account**
+![Alt Text](Screenshots_Videos/user_stocks.png)
+
+
+4. **History of the stocks bought or sold by user**
+![Alt Text](Screenshots_Videos/user_stock_history.png)
+
+5. **Multithreading: Orders placed at the same time**
+![Alt Text](Screenshots_Videos/multithreading.png)
