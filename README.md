@@ -16,7 +16,7 @@ http://localhost:8081/login
 
 
 
-## System Architecture
+## Microservices Architecture
 The system is designed using microservices architecture with the following services:
 
 * Order Processing: Manages stock buy/sell operations.
