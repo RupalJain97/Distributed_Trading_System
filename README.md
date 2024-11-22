@@ -168,7 +168,16 @@ The application underwent rigorous testing, including:
 
 * **Unit Testing** to verify individual functions for each microservice.
 * **Integration Testing** to ensure seamless data flow and operation across the entire microservices setup.
-* **Load Testing** to gauge the application's performance under high-concurrency scenarios. These tests were performed to confirm the stability of the order processing, stock updates, and real-time metrics components under a heavy load.
+* **Performance Testing** to gauge the application's performance under high-concurrency scenarios. These tests were performed to confirm the stability of the order processing, stock updates, and real-time metrics components under a heavy load.
+
+### Further testing:
+
+1. Load Testing, using tools like JMeter or Gatling for more comprehensive load testing beyond HighConcurrencyPerformanceTest test.
+2. Mocking External Dependencies using libraries like Mockito for mocking gRPC interactions in isolation to ensure the tests are focused and reliable.
+3. CI/CD Integration: Integrate tests into a continuous integration pipeline (e.g., GitHub Actions, Jenkins) to ensure automated testing with every code change.
+4. Testing API endpoints using REST-assured (Java Library)
+5. Input Validation: Test for missing parameters, invalid data formats, and edge cases.
+6. Error Handling: Ensure appropriate HTTP status codes (e.g., 400 for bad requests, 404 for not found, 500 for server errors).
 
 
 ## ScreenShots
